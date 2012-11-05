@@ -1,0 +1,36 @@
+This script will get seat price data from SJ (Swedish train operator), not to search in timetable. 
+For timetable search use for example: http://transport.opendata.ch/
+Acces to german prices for domestic german routes can be found in: http://code.google.com/p/openbahn-api/wiki/APIDocumentation
+To convert prices to EURO http://www.ecb.int/stats/eurofxref/eurofxref-daily.xml is a good place to start.
+
+You may try to use http://www.thure.org/sj/sj-price-api.php to test the script.
+
+The request is very slow. This is the delay from SJ when responding to a price request.
+
+#################### Request data ###################
+Key:							Data:		Example:		Comment:			
+deparatureTime 		[Required]	[HH:MM]		[06:30]
+arrivalTime			[Optional]	[HH:MM]		[10:00]			Use if two trains have the same deparature time.
+date				[Required]	[YYY-MM-DD]	[2013-01-15]
+from				[Required]	[Name]		[Lund C]
+to					[Required]	[Name]		[Stockholm C]
+travelerAge			[Optional]	[NN]		[23]
+promotionCode		[Optional]	[String]	[MAX295]
+travelerIsStudent	[Optional]	[Any]		[1]				(Any data is counted as true including 0 and false)
+xml				  	[Optional]	[Any]		[1]				(Any data is counted as true including 0 and false)
+
+#################### Respone data ###################
+Key:				Data:		Example:
+deparatureTime 		[HH:MM]		[06:30]
+arrivalTime			[HH:MM]		[10:00]
+date				[YYY-MM-DD]	[2013-01-15]
+from				[Name]		[Lund C]
+to					[Name]		[Stockholm C]
+travelerAge			[NN]		[23]
+promotionCode		[String]	[MAX295]
+travelerIsStudent	[Any]		[1]
+price				[N SEK]		[345 SEK]
+validPrice			[T/F]		[True]
+soldOut				[T/F]		[False]
+bookable			[T/F]		[True]
+departed			[T/F]		[False]
