@@ -154,7 +154,7 @@ if (isset($_GET["xml"])){
 	print '<?xml version="1.0"?>';
 	print '<trip>';
 	foreach($result as $key => $value){
-		print "<".key.">".$value."</".$key.">";
+		print "<".$key.">".$value."</".$key.">";
 	}
 	print '</trip>';
 }

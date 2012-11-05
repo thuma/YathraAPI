@@ -7,6 +7,47 @@ You may try to use http://www.thure.org/sj/sj-price-api.php to test the script.
 
 The request is very slow. This is the delay from SJ when responding to a price request.
 
+Example request: 
+http://www.thure.org/sj/sj-price-api.php?from=Lund+C&to=Stockholm+C&deparatureTime=06:25&date=2012-11-12
+
+Example response:
+{
+	"deparatureTime"	:	"06:25",
+	"arrivalTime"		:	"10:50",
+	"date"				:	"2012-11-12",
+	"from"				:	"Lund C",
+	"to"				:	"Stockholm C",
+	"travelerAge"		:	null,
+	"promotionCode"		:	null,
+	"travelerIsStudent"	:	null,
+	"price"				:	"419 SEK",
+	"validPrice"		:	true,
+	"soldOut"			:	false,
+	"bookable"			:	true,
+	"departed"			:	false
+}
+
+Example request (XML):
+http://www.thure.org/sj/sj-price-api.php?from=Lund+C&to=Stockholm+C&deparatureTime=06:25&date=2012-11-12&xml=1
+
+Example responce (XML):
+<?xml version="1.0"?>
+<trip>
+	<deparatureTime>06:25</deparatureTime>
+	<arrivalTime>10:50</arrivalTime>
+	<date>2012-11-12</date>
+	<from>Lund C</from>
+	<to>Stockholm C</to>
+	<travelerAge></travelerAge>
+	<promotionCode></promotionCode>
+	<travelerIsStudent></travelerIsStudent>
+	<price>419 SEK</price>
+	<validPrice>1</validPrice>
+	<soldOut></soldOut>
+	<bookable>1</bookable>
+	<departed></departed>
+</trip>
+
 #################### Request data ###################
 Key:							Data:		Example:		Comment:			
 deparatureTime 		[Required]	[HH:MM]		[06:30]
