@@ -1,5 +1,8 @@
-<?php
+﻿<?php
 header('Content-Type: text/html; charset=UTF-8');
+
+// Get chace handler
+include_once("cache.php");
 
 /*
 #################### Request data ###################
@@ -32,6 +35,52 @@ departed			[T/F]		[False]
 
 */
 
+// Translationlist:
+$stationlist = Array( "Kobenhavns Lufthavn Kastrup" => "Kastrup",
+"Umea C" => "Umeå C",
+"Kobenhavn H" => "K%C3%B6benhavn+H"
+);
+
+if(isset($stationlist[$_GET["to"]])){
+	$_GET["to"] = $stationlist[$_GET["to"]];
+}
+
+if(isset($stationlist[$_GET["from"]])){
+	$_GET["from"] = $stationlist[$_GET["from"]];
+}
+
+// Set deault age
+if (isset($_GET["travelerAge"])){}
+else{$_GET["travelerAge"]="29";}
+
+// Prepare data for cache search
+$test = Array("deparatureTime" => $_GET["deparatureTime"],
+"arrivalTime" => $_GET["arrivalTime"],
+"date" => $_GET["date"],
+"from" => $_GET["from"],
+"to" => $_GET["to"],
+"travelerAge" => $_GET["travelerAge"]);
+
+// Check cache for late entry
+$fromcache = getCache("sj", $test);
+
+// Check if found i found resturn the data from cache.
+if(isset($fromcache["date"])){
+
+// Create result array from cache data.
+$result = array(
+"deparatureTime" => $fromcache["deparatureTime"],
+"arrivalTime" => $fromcache["arrivalTime"],
+"date" => $fromcache["date"],
+"from" => $fromcache["_from"],
+"to" => $fromcache["_to"],
+"travelerAge" => $fromcache["travelerAge"],
+"price" => $fromcache["price"],
+"validPrice" =>  $fromcache["validPrice"],
+"url" => $fromcache["url"]
+);
+
+} else {
 
 // Check if travelever is entield to age disscounts.
 $agestring = "VU";
@@ -47,18 +96,15 @@ if (isset($_GET["travelerAge"])){
 		$agestring = "U1";
 	}
 }
-// Check if student is a student.
+
+// Check if traveler is a student.
 if (isset($_GET["travelerIsStudent"])){
 		$agestring = "ST";
 }
 
 // Compile Searh string:
-$searchstring ="travelQuery.departureLocationName=".urlencode($_GET["from"]).
-"&travelQuery.arrivalLocationName=".urlencode($_GET["to"]).
-"&travelQuery.includeOnlySjProducer=true".
-"&_travelQuery.includeOnlySjProducer=on".
-"&travelQuery.includeOnlyNonStopTravel=true".
-"&_travelQuery.includeOnlyNonStopTravel=on".
+$searchstring ="travelQuery.departureLocationName=".$_GET["from"].
+"&travelQuery.arrivalLocationName=".$_GET["to"].
 "&_travelQuery.includeExpressBuses=on".
 "&travelQuery.campaignCode=".urlencode($_GET["promotionCode"]).
 "&changeTravellerInfoRequest.selectedTravellerType=".$agestring.
@@ -68,7 +114,7 @@ $searchstring ="travelQuery.departureLocationName=".urlencode($_GET["from"]).
 
 // Open connection
 $ch = curl_init();
-curl_setopt($ch,CURLOPT_URL, "http://mobil.sj.se/timetable/searchtravel.do");
+curl_setopt($ch, CURLOPT_URL, "http://mobil.sj.se/timetable/searchtravel.do");
 curl_setopt($ch, CURLOPT_HEADER, true);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -147,7 +193,12 @@ $result = array(
 "soldOut" => $pricearray[0]["soldOut"],
 "bookable" => $pricearray[0]["trip"]["bookable"],
 "departed" => $pricearray[0]["trip"]["departed"],
+"url" => "http://www.sj.se"
 );
+
+// Stor the data in the cache:
+putCache("sj", $result);
+}
 
 // Send responce as: XML / JSON:
 if (isset($_GET["xml"])){
