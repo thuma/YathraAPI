@@ -3,12 +3,12 @@ For timetable search use for example: http://transport.opendata.ch/
 Acces to german prices for domestic german routes can be found in: http://code.google.com/p/openbahn-api/wiki/APIDocumentation
 To convert prices to EURO http://www.ecb.int/stats/eurofxref/eurofxref-daily.xml is a good place to start.
 
-You may try to use http://www.thure.org/sj/sj-price-api.php to test the script.
+You may try to use http://www.thure.org/price/sj-price-api.php to test the script.
 
 The request is very slow. This is the delay from SJ when responding to a price request.
 
 Example request: 
-http://www.thure.org/sj/sj-price-api.php?from=Lund+C&to=Stockholm+C&deparatureTime=06:25&date=2012-11-12
+http://www.thure.org/price/sj-price-api.php?from=Lund+C&to=Stockholm+C&deparatureTime=06:25&date=2012-11-12
 
 Example response:
 {
