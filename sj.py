@@ -159,6 +159,6 @@ application = tornado.web.Application([
     (r"/sj/", MainHandler),
 ])
 
-application.listen(8888)
+application.listen(10074)
 tornado.ioloop.IOLoop.instance().start()
  
