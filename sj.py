@@ -27,6 +27,7 @@ class MainHandler(tornado.web.RequestHandler):
 	def returnrequest(self, data):
 		outdata = {"travelerAge":35,
 		"travelerIsStudent":False,
+		"sellername":"SJ",
 		"price":"",
 		"currency":"SEK",
 		"validPrice":True,
