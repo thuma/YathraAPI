@@ -17,7 +17,9 @@ for stop in stops['stops']:
 	stopsa[str(stop['P']*100000+stop['L'])] = stop['N']
 stops = {}
 
-
+class CachePrint(tornado.web.RequestHandler):
+	def get(self):
+		self.write(cache)
 
 class MainHandler(tornado.web.RequestHandler):
 	@tornado.web.asynchronous
@@ -158,6 +160,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application([
     (r"/sj/", MainHandler),
+    (r"/sj/cache/", CachePrint),
 ])
 
 application.listen(10074)
