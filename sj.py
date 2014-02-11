@@ -23,9 +23,7 @@ class CachePrint(tornado.web.RequestHandler):
 
 class MainHandler(tornado.web.RequestHandler):
 	@tornado.web.asynchronous
-	def get(self):
-		Thread(target=self.makerequest).start()
-		
+
 	def returnrequest(self, data):
 		outdata = {"travelerAge":35,
 		"travelerIsStudent":False,
@@ -34,7 +32,6 @@ class MainHandler(tornado.web.RequestHandler):
 		"currency":"SEK",
 		"validPrice":True,
 		"url":"http://www.sj.se/"}
-		
 		
 		outdata['departureTime'] = data['departureTime']
 		outdata['arrivalTime'] = data['arrivalTime']
@@ -45,15 +42,12 @@ class MainHandler(tornado.web.RequestHandler):
 		outdata['validPrice'] = data['pricedata']['validPrice']
 		outdata['soldOut'] = data['pricedata']['soldOut']
 		outdata['url'] = 'http://www.sj.se/microsite/microsite/submit.form?f='+data['departureDate'].replace('-','')+'&G=false&F='+data['departureTime'][0:2]+'00&header.type=TRAVEL&3A=false&c='+data['arrivalLocation'][-5:]+'%3A0'+data['arrivalLocation'][0:2]+'&B='+data['departureLocation'][-5:]+'%3A0'+data['departureLocation'][0:2]+'&header.key=K253891809275136476&l=sv'
-		
-		tornado.ioloop.IOLoop.instance().add_callback(self.returndata, outdata)
 	
 	def returnerror(self, data):
 		returdata = {}
 		returdata['error'] = data
-		tornado.ioloop.IOLoop.instance().add_callback(self.returndata, returdata)
 	
-	def makerequest(self):
+	def get(self):
 		global cache
 		global stopsa
 		searchdata = {}
@@ -95,6 +89,8 @@ class MainHandler(tornado.web.RequestHandler):
 			notfound = 1
 		
 		r = requests.get('https://mobil.sj.se/timetable/searchtravel.do', allow_redirects=True)
+
+	def gotsession(self, request):
 		cookie = r.cookies['JSESSIONID']
 		cookies = dict(JSESSIONID=cookie)
 
@@ -109,9 +105,11 @@ class MainHandler(tornado.web.RequestHandler):
 		
 
 		r = requests.post('https://mobil.sj.se/timetable/searchtravel.do', data=searchdata, allow_redirects=True, cookies=cookies)
-
+	
+	def doneserach(self, request):
 		r = requests.get('https://mobil.sj.se/api/timetable/departures', allow_redirects=True, cookies=cookies)
 
+	def gottrips(self, request):
 		trips = r.json()
 
 		if len(trips['data']['rows']) > 10:
@@ -128,6 +126,8 @@ class MainHandler(tornado.web.RequestHandler):
 
 		r = requests.post('https://mobil.sj.se/api/timetable/prices/bestforids', data=getpricedata, allow_redirects=True, cookies=cookies)
 	
+	def gotprices (self, request):
+		global cache
 		price = r.json()
 		price = price['data']
 		trips = trips['data']['rows']
@@ -149,11 +149,11 @@ class MainHandler(tornado.web.RequestHandler):
 		
 		try:
 			self.returnrequest(cache[getdate+getfrom+gettime+getto+gettotime])
-			return ''
+
 		except:
 			self.returnerror('Trip not found in search')
-			return ''
-		
+
+	
 	def returndata(self, trips):
 		self.write(trips)
 		self.finish()
