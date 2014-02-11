@@ -1,12 +1,10 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests
 import re
 import json
 import tornado.ioloop
 import tornado.web
-from threading import Thread
 
 cache = {}
 
@@ -88,9 +86,12 @@ class MainHandler(tornado.web.RequestHandler):
 		except:
 			notfound = 1
 		
+		http_client = AsyncHTTPClient()
+		http_client.fetch("http://www.google.com/", gotsession)
 		r = requests.get('https://mobil.sj.se/timetable/searchtravel.do', allow_redirects=True)
 
-	def gotsession(self, request):
+	def gotsession(self, response):
+		response.headers["set-cookie"]
 		cookie = r.cookies['JSESSIONID']
 		cookies = dict(JSESSIONID=cookie)
 
