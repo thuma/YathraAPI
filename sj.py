@@ -5,6 +5,7 @@ import re
 import json
 import tornado.ioloop
 import tornado.web
+import tornado.httpclient
 
 cache = {}
 
@@ -19,9 +20,8 @@ class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		self.write(cache)
 
-class MainHandler(tornado.web.RequestHandler):
-	@tornado.web.asynchronous
-
+class MainHandler(tornado.web.RequestHandler):	
+	
 	def returnrequest(self, data):
 		outdata = {"travelerAge":35,
 		"travelerIsStudent":False,
@@ -44,11 +44,13 @@ class MainHandler(tornado.web.RequestHandler):
 	def returnerror(self, data):
 		returdata = {}
 		returdata['error'] = data
-	
+		
+	@tornado.web.asynchronous
 	def get(self):
 		global cache
 		global stopsa
 		searchdata = {}
+		self.request = tornado.httpclient.AsyncHTTPClient()
 
 		try:
 			searchdata['travelQuery.outDateTime'] = self.get_argument('date') +'T'+ self.get_argument('departureTime')[:2]+':00'
@@ -86,11 +88,13 @@ class MainHandler(tornado.web.RequestHandler):
 		except:
 			notfound = 1
 		
-		http_client = AsyncHTTPClient()
-		http_client.fetch("http://www.google.com/", gotsession)
-		r = requests.get('https://mobil.sj.se/timetable/searchtravel.do', allow_redirects=True)
+		self.request.fetch(tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='GET', follow_redirects=True, max_redirects=3, header_callback=Ture), self.gotsession)
 
 	def gotsession(self, response):
+		self.write(response.headers)
+		self.finish()
+		return ''
+
 		response.headers["set-cookie"]
 		cookie = r.cookies['JSESSIONID']
 		cookies = dict(JSESSIONID=cookie)
