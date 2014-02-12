@@ -6,6 +6,8 @@ import json
 import tornado.ioloop
 import tornado.web
 import tornado.httpclient
+import tornado.httputil
+import tornado.escape
 
 cache = {}
 
@@ -20,7 +22,8 @@ class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		self.write(cache)
 
-class MainHandler(tornado.web.RequestHandler):	
+class MainHandler(tornado.web.RequestHandler):
+	cookie = ''
 	
 	def returnrequest(self, data):
 		outdata = {"travelerAge":35,
@@ -49,11 +52,11 @@ class MainHandler(tornado.web.RequestHandler):
 	def get(self):
 		global cache
 		global stopsa
-		searchdata = {}
-		self.request = tornado.httpclient.AsyncHTTPClient()
+		self.searchdata = ''
+		self.http_client = tornado.httpclient.AsyncHTTPClient()
 
 		try:
-			searchdata['travelQuery.outDateTime'] = self.get_argument('date') +'T'+ self.get_argument('departureTime')[:2]+':00'
+			self.searchdata = 'travelQuery.outDateTime='+self.get_argument('date') +'T'+ tornado.escape.url_escape(self.get_argument('departureTime')[:2]+':00')
 			getdate = self.get_argument('date')
 			gettime = self.get_argument('departureTime')
 		except:
@@ -63,7 +66,7 @@ class MainHandler(tornado.web.RequestHandler):
 		try:
 			getfrom = self.get_argument('from')
 			fromname = stopsa[getfrom]
-			searchdata['travelQuery.departureLocationName'] = fromname
+			self.searchdata +='&travelQuery.departureLocationName=' + tornado.escape.url_escape(fromname)
 		except:
 			self.returnerror('Missing deparature station')
 			return ''
@@ -71,7 +74,7 @@ class MainHandler(tornado.web.RequestHandler):
 		try:
 			getto = self.get_argument('to')
 			toname = stopsa[getto]
-			searchdata['travelQuery.arrivalLocationName'] = toname
+			self.searchdata +='&travelQuery.arrivalLocationName='+ tornado.escape.url_escape(toname)
 		except:
 			self.returnerror('Missing arrival station')
 			return ''
@@ -87,34 +90,37 @@ class MainHandler(tornado.web.RequestHandler):
 			return ''
 		except:
 			notfound = 1
+			
+		self.searchdata += '&_travelQuery.includeOnlySjProducer=on&'
+		self.searchdata += '_travelQuery.includeOnlyNonStopTravel=on&'
+		self.searchdata += 'travelQuery.includeExpressBuses=true&'
+		self.searchdata += '_travelQuery.includeExpressBuses=on&'
+		self.searchdata += 'travelQuery.campaignCode=&'
+		self.searchdata += 'changeTravellerInfoRequest.selectedTravellerType=VU&'
+		self.searchdata += 'travelQuery.outTimeDeparture=true&'
+		self.searchdata += 'submitSearchLater=S%C3%B6k%20resa'
+			
+		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='GET', follow_redirects=True, max_redirects=3)
+		self.http_client.fetch(request_setup, self.gotsession)
 		
-		self.request.fetch(tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='GET', follow_redirects=True, max_redirects=3, header_callback=Ture), self.gotsession)
-
-	def gotsession(self, response):
-		self.write(response.headers)
-		self.finish()
-		return ''
-
-		response.headers["set-cookie"]
-		cookie = r.cookies['JSESSIONID']
-		cookies = dict(JSESSIONID=cookie)
-
-		searchdata['_travelQuery.includeOnlySjProducer']='on'
-		searchdata['_travelQuery.includeOnlyNonStopTravel']='on'
-		searchdata['travelQuery.includeExpressBuses']='true'
-		searchdata['_travelQuery.includeExpressBuses']='on'
-		searchdata['travelQuery.campaignCode']=''
-		searchdata['changeTravellerInfoRequest.selectedTravellerType']='VU'
-		searchdata['travelQuery.outTimeDeparture']='true'
-		searchdata['submitSearchLater']='Sök resa'
-		
-
-		r = requests.post('https://mobil.sj.se/timetable/searchtravel.do', data=searchdata, allow_redirects=True, cookies=cookies)
+	def gotsession(self,response):
+		print 'got cookie'
+		self.cookie = response.headers["set-cookie"].split(';')[0]
+		header_setup = tornado.httputil.HTTPHeaders({"Cookie": self.cookie,'Content-Type':'application/x-www-form-urlencoded'})
+		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='POST', headers=header_setup, body=self.searchdata, follow_redirects=True, max_redirects=3)
+		self.http_client.fetch(request_setup, self.doneserach)
 	
-	def doneserach(self, request):
-		r = requests.get('https://mobil.sj.se/api/timetable/departures', allow_redirects=True, cookies=cookies)
+	def doneserach(self, response):
+		header_setup = tornado.httputil.HTTPHeaders({"Cookie": self.cookie})
+		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/api/timetable/departures", method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
+		self.http_client.fetch(request_setup, self.gottrips)
 
 	def gottrips(self, request):
+		print request.body
+		self.write(request.body)
+		self.finish()
+	
+	def temp():
 		trips = r.json()
 
 		if len(trips['data']['rows']) > 10:
