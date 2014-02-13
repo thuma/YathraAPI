@@ -43,10 +43,13 @@ class MainHandler(tornado.web.RequestHandler):
 		outdata['validPrice'] = data['pricedata']['validPrice']
 		outdata['soldOut'] = data['pricedata']['soldOut']
 		outdata['url'] = 'http://www.sj.se/microsite/microsite/submit.form?f='+data['departureDate'].replace('-','')+'&G=false&F='+data['departureTime'][0:2]+'00&header.type=TRAVEL&3A=false&c='+data['arrivalLocation'][-5:]+'%3A0'+data['arrivalLocation'][0:2]+'&B='+data['departureLocation'][-5:]+'%3A0'+data['departureLocation'][0:2]+'&header.key=K253891809275136476&l=sv'
+		
+		self.returndata(outdata)
 	
 	def returnerror(self, data):
 		returdata = {}
 		returdata['error'] = data
+		self.returndata(returdata)
 		
 	@tornado.web.asynchronous
 	def get(self):
@@ -54,39 +57,40 @@ class MainHandler(tornado.web.RequestHandler):
 		global stopsa
 		self.searchdata = ''
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
+		self.trips={}
 
 		try:
 			self.searchdata = 'travelQuery.outDateTime='+self.get_argument('date') +'T'+ tornado.escape.url_escape(self.get_argument('departureTime')[:2]+':00')
-			getdate = self.get_argument('date')
-			gettime = self.get_argument('departureTime')
+			self.getdate = self.get_argument('date')
+			self.gettime = self.get_argument('departureTime')
 		except:
 			self.returnerror('Missing deparature time')
 			return ''
 			
 		try:
-			getfrom = self.get_argument('from')
-			fromname = stopsa[getfrom]
-			self.searchdata +='&travelQuery.departureLocationName=' + tornado.escape.url_escape(fromname)
+			self.getfrom = self.get_argument('from')
+			self.fromname = stopsa[self.getfrom]
+			self.searchdata +='&travelQuery.departureLocationName=' + tornado.escape.url_escape(self.fromname)
 		except:
 			self.returnerror('Missing deparature station')
 			return ''
 		
 		try:
-			getto = self.get_argument('to')
-			toname = stopsa[getto]
-			self.searchdata +='&travelQuery.arrivalLocationName='+ tornado.escape.url_escape(toname)
+			self.getto = self.get_argument('to')
+			self.toname = stopsa[self.getto]
+			self.searchdata +='&travelQuery.arrivalLocationName='+ tornado.escape.url_escape(self.toname)
 		except:
 			self.returnerror('Missing arrival station')
 			return ''
 
 		try:
-			gettotime = self.get_argument('arrivalTime')
+			self.gettotime = self.get_argument('arrivalTime')
 		except:
 			self.returnerror('Missing arrivalTime HH:MM')
 			return ''
 		
 		try:
-			self.returnrequest(cache[getdate+getfrom+gettime+getto+gettotime])
+			self.returnrequest(cache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
 			return ''
 		except:
 			notfound = 1
@@ -104,7 +108,6 @@ class MainHandler(tornado.web.RequestHandler):
 		self.http_client.fetch(request_setup, self.gotsession)
 		
 	def gotsession(self,response):
-		print 'got cookie'
 		self.cookie = response.headers["set-cookie"].split(';')[0]
 		header_setup = tornado.httputil.HTTPHeaders({"Cookie": self.cookie,'Content-Type':'application/x-www-form-urlencoded'})
 		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='POST', headers=header_setup, body=self.searchdata, follow_redirects=True, max_redirects=3)
@@ -116,50 +119,48 @@ class MainHandler(tornado.web.RequestHandler):
 		self.http_client.fetch(request_setup, self.gottrips)
 
 	def gottrips(self, request):
-		print request.body
-		self.write(request.body)
-		self.finish()
-	
-	def temp():
-		trips = r.json()
+		trips = tornado.escape.json_decode(request.body)
 
 		if len(trips['data']['rows']) > 10:
 			max = 10
 		else:
 			max = len(trips['data']['rows'])
 	
-		getpricedata = {'journeyIds':''}
 		comma = ''
-		
+		getpricedata = 'journeyIds='
 		for i in range(0, max):
-			getpricedata['journeyIds'] = getpricedata['journeyIds'] + comma + trips['data']['rows'][i]['id']
+			getpricedata += tornado.escape.url_escape(comma + trips['data']['rows'][i]['id'])
 			comma = ','
-
-		r = requests.post('https://mobil.sj.se/api/timetable/prices/bestforids', data=getpricedata, allow_redirects=True, cookies=cookies)
+		
+		header_setup = tornado.httputil.HTTPHeaders({"Cookie": self.cookie,'Content-Type':'application/x-www-form-urlencoded'})
+		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/api/timetable/prices/bestforids", method='POST', headers=header_setup, body=getpricedata, follow_redirects=True, max_redirects=3)
+		self.http_client.fetch(request_setup, self.gotprices )
+		self.trips = trips
 	
 	def gotprices (self, request):
 		global cache
-		price = r.json()
+		
+		price =  tornado.escape.json_decode(request.body)
 		price = price['data']
-		trips = trips['data']['rows']
+		trips = self.trips['data']['rows']
 
 		for i in range(0, len(trips)):
 			for j in range (0,len(price)):
 				if price[j]['journeyId'] == trips[i]['id']:
 					trips[i]['pricedata'] = price[j]
-					trips[i]['departureDate'] = getdate
-					trips[i]['departureLocation'] = getfrom
-					trips[i]['arrivalLocation'] = getto
-					stopfrom = getfrom 
-					stopto = getto
-					datefrom = getdate
+					trips[i]['departureDate'] = self.getdate
+					trips[i]['departureLocation'] = self.getfrom
+					trips[i]['arrivalLocation'] = self.getto
+					stopfrom = self.getfrom 
+					stopto = self.getto
+					datefrom = self.getdate
 					timefrom = trips[i]['departureTime']
 					timeto = trips[i]['arrivalTime']
 					cache[datefrom+stopfrom+timefrom+stopto+timeto] = trips[i]
 					break
 		
 		try:
-			self.returnrequest(cache[getdate+getfrom+gettime+getto+gettotime])
+			self.returnrequest(cache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
 
 		except:
 			self.returnerror('Trip not found in search')
