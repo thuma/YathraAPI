@@ -65,7 +65,7 @@ class MainHandler(tornado.web.RequestHandler):
 			self.gettime = self.get_argument('departureTime')
 		except:
 			self.returnerror('Missing deparature time')
-			return ''
+			return None
 			
 		try:
 			self.getfrom = self.get_argument('from')
@@ -73,7 +73,7 @@ class MainHandler(tornado.web.RequestHandler):
 			self.searchdata +='&travelQuery.departureLocationName=' + tornado.escape.url_escape(self.fromname)
 		except:
 			self.returnerror('Missing deparature station')
-			return ''
+			return None
 		
 		try:
 			self.getto = self.get_argument('to')
@@ -81,17 +81,17 @@ class MainHandler(tornado.web.RequestHandler):
 			self.searchdata +='&travelQuery.arrivalLocationName='+ tornado.escape.url_escape(self.toname)
 		except:
 			self.returnerror('Missing arrival station')
-			return ''
+			return None
 
 		try:
 			self.gettotime = self.get_argument('arrivalTime')
 		except:
 			self.returnerror('Missing arrivalTime HH:MM')
-			return ''
+			return None
 		
 		try:
 			self.returnrequest(cache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
-			return ''
+			return None
 		except:
 			notfound = 1
 			
