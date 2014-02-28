@@ -1,0 +1,1371 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html id="ctl00_htmlelement" xmlns="http://www.w3.org/1999/xhtml" lang="sv" xml:lang="sv">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <meta name="title" content="Reseplaneraren " />
+    <meta name="rating" content="General" />
+    <meta http-equiv="Content-Language" content="sv" />
+  <title>Reseplaneraren </title>
+
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <link rel="stylesheet" type="text/css" href="css/reset.css" />
+  <link rel="stylesheet" type="text/css" href="css/common.css" />
+  <script type="text/javascript" src="stylesheet.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/rpajax.css" />
+  <!--[if IE]>
+        <link rel="stylesheet" type="text/css" href="css/IE-ALL.css"/>
+        <![endif]-->
+  <!--[if lte IE 6]>
+        <link rel="stylesheet" type="text/css" href="css/LTE-IE6.css"/>
+        <![endif]-->
+  <!--[if IE 6]>
+        <link rel="stylesheet" type="text/css" href="css/IE6.css"/>
+        <![endif]-->
+  <!--[if IE 7]>
+        <link rel="stylesheet" type="text/css" href="css/IE7.css"/>
+        <![endif]-->
+  <!--[if IE 8]>
+        <link rel="stylesheet" type="text/css" href="css/IE8.css"/>
+        <![endif]-->
+    
+   <link rel="stylesheet" type="text/css" href="css/notis.css" /> 
+</head>
+<body>
+
+
+<!-- END EPiServer code, BEGIN Reseplaneraren --> 
+  
+<div id="maincontainerdiv">
+<div id="subcontainer">
+
+    <script type="text/javascript" src="jslib/common07.js"></script>
+    <script type="text/javascript" src="jslib/resultspage07.js"></script>
+    <script type="text/javascript" src="jslib/rpajax07.js"></script>
+    
+   <!-- JS & dynamicaly created scripts -->
+<script type="text/javascript">
+dValidFr = '2014-01-01'
+dValidTo = '2014-06-15'
+var ajax_list_externalFile = 'rpajax.aspx?net=HALLAND&amp;lang=se'
+var mapSource = new Array()
+var priceArr = new Array()
+var msgPriceUnavailable = 'prisinfo ej tillgänglig'
+var noOfOutwardJourneys = 4
+mapSource[0]='http://193.45.213.123/halland/kartor_test/JourneyMap/journeyMap.html?id=9991628256448597224139.xml&amp;seq=0&amp;lang=se'
+priceArr[0]= new Array('42,00','25,00','76,00','33,60','20,00','60,80','375,00','0,00','0,00','580,00','0,00','0,00','690,00','0,00','0,00')
+mapSource[1]='http://193.45.213.123/halland/kartor_test/JourneyMap/journeyMap.html?id=9991628256448597224139.xml&amp;seq=1&amp;lang=se'
+priceArr[1]= new Array('42,00','25,00','76,00','33,60','20,00','60,80','375,00','0,00','0,00','580,00','0,00','0,00','690,00','0,00','0,00')
+mapSource[2]='http://193.45.213.123/halland/kartor_test/JourneyMap/journeyMap.html?id=9991628256448597224139.xml&amp;seq=2&amp;lang=se'
+priceArr[2]= new Array('42,00','25,00','76,00','33,60','20,00','60,80','375,00','0,00','0,00','580,00','0,00','0,00','690,00','0,00','0,00')
+mapSource[3]='http://193.45.213.123/halland/kartor_test/JourneyMap/journeyMap.html?id=9991628256448597224139.xml&amp;seq=3&amp;lang=se'
+priceArr[3]= new Array('42,00','25,00','76,00','33,60','20,00','60,80','375,00','0,00','0,00','580,00','0,00','0,00','690,00','0,00','0,00')
+</script>
+    
+  <!-- BEGIN Branding & Language selection -->
+  
+  <div id="header">
+
+    <div id="branding">
+  
+        <h1 id="loggo">
+            <img id="logo" src="gfx/reseplaneraren-logo.png" alt="Reseplaneraren" title="S&ouml;kmotor &copy; 2010 Forsler &amp; Stjerna Konsult AB"/>
+        </h1>
+    </div>
+    
+    <!-- BEGIN Navigation -->
+    <ul id="navbar">
+      <li>
+        <a href="javascript:wOpenHelp(1,'results')" title="Hjälp" >Hjälp</a>
+        <div class=" hidden"></div>
+      </li>
+
+     <li>
+        <div class="nav-border-fix hidden"></div><a href="javascript:NewSearch('querypage_adv.aspx')" title="Ny sökning">Ny sökning</a>
+      </li>
+
+      <li>
+        <div class="nav-border-fix hidden"></div><a href="javascript:openPrint('resultspage')" title="Skriv ut">Skriv ut</a>
+
+      </li>
+    </ul>
+        
+  </div>
+  
+  <!-- BEGIN form -->
+  <form id="frmMain" action="resultspage.aspx" method="post" onsubmit="return formResults_onSubmit(this)">
+
+  <!-- AJAX support -->
+  <div>
+    <input type="hidden" name="inpPointFr_ajax" id="inpPointFr_ajax" value="Varberg Station (Bussterm)|6700|0"/>
+    <input type="hidden" name="inpPointTo_ajax" id="inpPointTo_ajax" value="Ã…s Gamla KÃ¶pstad|6014|0"/> 
+    <input type="hidden" name="inpPointInterm_ajax" id="inpPointInterm_ajax" value=""/> 
+  </div>
+  
+  <!-- BEGIN refine search form-->
+	<div id="change-search" class="vertically-centered">
+	<div class="hidden" id="print-label">Sökt resa:</div>
+  
+	
+  		<div id="refine-step-2" class="question floated" style="width:23.5em" >
+  			<p class="form-control">
+  			<label for="input-from" id="searched-label">Sökt resa:</label>
+  			<input type="text" name="inpPointFr" id="inpPointFr"  autocomplete="off" title="Från" onkeyup="javascript:ajax_showOptions(this,'',event)" class="text-input" value="Varberg Station (Bussterm)" maxlength="49" />
+  			</p>
+  			<p class="form-control">
+  			<input type="text" name="inpPointTo" id="inpPointTo"  autocomplete="off" title="Till" onkeyup="javascript:ajax_showOptions(this,'',event)" class="text-input" value="Ã…s Gamla KÃ¶pstad" maxlength="49" />
+
+  			</p>
+  			
+  		</div>
+  		<div id="refine-step-3" class="question floated form-control">
+  		  			<p class="form-control">      						
+      							<a id="search-submit" href="javascript:toggleRetur()">
+      								<img src="gfx/retur-se.gif" alt="Returresa" style="height:1.8em" /> 
+      							</a>      						
+      				</p>
+  		</div>
+  		
+  		<div class="question floated">
+           <p class="form-control">
+           <select class="arr-dep-select" name="selDirection" id="selDirection" onchange="setRedBtn()" title="Avgångstid">
+                <option value="0" >Avgångstid</option>
+                <option value="1" >Ankomsttid</option>
+           </select>
+       <input type="text" class="time-input" name="inpTime" id="inpTime" value="12:03" maxlength="5" title="Tid" onchange="checkTime(this);setRedBtn()" onkeypress="return checkMask(event,'0123456789:')"/>
+           </p>
+        </div>
+        <div class="question floated">
+        	<p class="form-control">
+        		<input type="text" class="date-input" id="inpDate" name="inpDate" value="2014-03-12" maxlength="10" onchange="checkDate(this);setRedBtn()" onkeypress="return checkMask(event,'0123456789- ')" /> <a class="calendar-icon" id="date-1-calendar" href="javascript:showCalendar('inpDate',0,75)" title="Kalendern"><img src="gfx/calendar.png" alt="Kalendern" style="height:1.8em"/></a>
+        	</p>
+        </div>
+        <div class="question floated form-control">  	
+  			<input class="form-button" type="image" onclick="setWhiteBtn()" id="searchBtn" src="gfx/search-se.gif" alt="Sök" value="Submit" style="height:1.8em"/>
+  			<input class="hidden" type="submit" value="Sök" />
+            <!-- FIX: WCAG A2 fails if submit button is missing: -->
+  		</div>
+  	</div>
+    <div id="print-results">
+
+  
+  <!-- BEGIN Search results -->
+    <div id="search-results-container">
+      <div class="cornerfix" id="cornerfix-tl"></div>
+
+      <div class="cornerfix" id="cornerfix-tr"></div>
+      
+      <p id="results-nav-earlier" class="centered">
+      
+      
+      	<a href="javascript:submitAction('previous')" title="Tidigare resor"><img src="gfx/arrowup.png" alt="pil-upp&aring;t" class="results-nav-arrow" id="arrow-up" /> Tidigare resor</a>
+      	
+      </p>
+      
+          
+      
+      <div id="results-table-container">
+      <table id="search-results" summary="S&ouml;kresultat" >
+       
+      	<tr id="column-headers" class="mid-grey">
+      	    <!-- BEGIN Header row -->
+      		<th id="details-and-date" class="col-1"></th>
+      		<th id="departure" class="col-2">Avg</th>
+      		<th id="arrival" class="col-3">Ank</th>
+      		<th id="journey-time" class="col-4">Restid</th>
+      		<th id="changes" class="col-5">Byten</th>
+      		<th id="traffic-type" class="col-6">Trafikslag</th>
+      		<th id="price" class="col-7">
+      			<!-- Note: WCAG A2 fails on line below, probably because label is before its form element -->
+      			<label for="selPriceType" id="print-pricelabel">Pris: </label>
+      			
+      			    <select id="selPriceType" name="selPriceType" onchange="updatePrice(this.options[this.selectedIndex].value)">
+      			    
+				        <option value="0">Ordinarie Vuxen</option>
+				        <option value="1">Ordinarie Skolungdom</option>
+					    <option value="2">Ordinarie Duo/Familj</option>
+				        <option value="3">Reskassa Vuxen</option>
+				        <option value="4">Reskassa Skolungdom</option>
+					    <option value="5">Reskassa Duo/Familj</option>
+      			    </select>
+      			
+      		</th>
+      		<th id="traffic-information" class="col-8">Trafikinfo</th>
+      		<th id="journey-info" class="col-9">Resinfo</th>
+      	</tr>
+      
+      	
+
+         <!-- BEGIN Date row -->
+  	    <tr class="dark-grey">
+  		        <td colspan="9" class="date-cell borderfix" >
+  			        2014-03-12
+  		        </td>
+  	    </tr>
+      
+      	  
+
+      	    <!-- BEGIN Overview row -->
+
+      	<tr id="result-0" class="search-result toplevel white nobottomborder">
+      		<td class="col-1"><a href="javascript:toggleDetails(0)"><img id="details-btn-0" class="details-btn" src="gfx/detaljer-collapsed-se.gif" alt="Detaljer" /></a></td>
+      		<td class="vertically-centered centered">11:55</td>
+      		<td>12:12</td>
+      		<td>00:17</td>
+      		<td>0</td>
+      		<td><img class='spaced-icon' src='images/busslandsbygdstrafik.gif' title='Buss Landsbygdstrafik 652'  alt='Buss Landsbygdstrafik' height='18' width='18'/></td>
+      		<td class="col-7 vertically-centered">
+      		<span id="pricetag-0">42,00 kr</span>
+            
+            
+      		</td>
+      		<td class="vertically-centered">  
+      		    <img src='images/rtB_3.gif' alt='Realtid' title=''/></td>
+      		<td class="col-9">
+      		    <img class="spaced-icon" src="images/garanti.png" alt="Resegaranti" title="Resegaranti"/></a>
+      		    <img class="spaced-icon" src="images/20.png" alt="Milj&ouml;p&aring;verkan" title="Miljöpåverkan 48,000 g CO2/personkm" /></a>
+      		    
+      		</td>
+      	</tr>
+      
+            <!-- Recomputed journey row -->  
+        
+
+
+      	    <!-- BEGIN Details -->
+      	<tr id="result-0-details-2" class="result-details result-details-2 toplevel white hidden">
+      		<td colspan="9" class="toplevel further-details-cell">
+      			<div class="details-container" id="print-details-container-0">
+      			    <!-- hidden span  print-journeydate- used in print, mail, share for displaying additional info -->
+                    <div class="v-spacer clearfix"><span class="hidden" id="print-journeydate-0"><strong>2014-03-12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                    Restid: 00:17
+                    &nbsp;&nbsp;
+                    Byten: 0
+                    
+      		            &nbsp;&nbsp;<img style="margin-bottom:-0.3em;width:1.4em" src="images/garanti.png" alt="Resegaranti"/>
+      		        
+                    </span>&nbsp;</div>
+      			    <!-- BEGIN Std details tbl --> 
+      			    <table id="standard-details-0" class="details-table hidden" summary="Resv&auml;g">
+      			        
+      					<tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>      						                             
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      					
+  
+       					
+      					<tr >
+      						<td><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>
+      						<td>
+      						            <a href="javascript:queryLine('14068082219070100525000097900010020',6700)" title="Tider längs linje">652</a>
+  						        
+      						</td>
+      						<td>      						
+  						    
+  							    <a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 11:55:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br /> -&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 12:12:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a> 
+  							
+      						</td>
+      						<td>
+      						    <strong>E</strong><br /><strong>B</strong>
+      						</td>
+      						<td>
+      							<strong>Avg:&nbsp;11:55</strong><br />
+      							<strong>Ank:&nbsp;12:12</strong>
+      						</td>
+      						<td><br />
+      						    
+      						</td>
+      						<td><img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;
+      						</td>
+      					</tr>
+      					
+ 
+      				</table>	
+
+
+      				<!-- BEGIN Adv details tbl -->
+      				
+      				<table id="advanced-details-0" class="advanced-details-table" summary="Detaljerad resv&auml;g">
+      				    <tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      				
+			
+  						<tr >
+  						<td class="details-col-1"><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>  						   						
+			    <td class="details-col-2"><a href="javascript:queryLine('14068082219070100525000097900010020',6700)" title="Tider längs linje">652</a><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>
+<td class="details-col-3"><a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 11:55:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br />
+<a href="javascript:queryStation('Varberg Komedianten   Biblioteket|6566','2014-03-12 11:56:00',0)" title="Avgångstider">Varberg Komedianten   Biblioteket</a><br />
+<a href="javascript:queryStation('Varberg Lorensberg|6600','2014-03-12 11:57:00',0)" title="Avgångstider">Varberg Lorensberg</a><br />
+<a href="javascript:queryStation('Varberg Tjädervägen|6541','2014-03-12 11:59:00',0)" title="Avgångstider">Varberg Tjädervägen</a><br />
+<a href="javascript:queryStation('Varberg Bolmen|6542','2014-03-12 12:00:00',0)" title="Avgångstider">Varberg Bolmen</a><br />
+<a href="javascript:queryStation('Varberg Karlbergsvägen|6543','2014-03-12 12:01:00',0)" title="Avgångstider">Varberg Karlbergsvägen</a><br />
+<a href="javascript:queryStation('Varberg Sjukhuset|6544','2014-03-12 12:02:00',0)" title="Avgångstider">Varberg Sjukhuset</a><br />
+<a href="javascript:queryStation('Varberg Karlbergsvägen|6543','2014-03-12 12:03:00',0)" title="Avgångstider">Varberg Karlbergsvägen</a><br />
+<a href="javascript:queryStation('Varberg Bolmen|6542','2014-03-12 12:03:00',0)" title="Avgångstider">Varberg Bolmen</a><br />
+<a href="javascript:queryStation('Varberg Nya Påskberget|6602','2014-03-12 12:05:00',0)" title="Avgångstider">Varberg Nya Påskberget</a><br />
+<a href="javascript:queryStation('Varberg Solviksvägen Breared|6507','2014-03-12 12:06:00',0)" title="Avgångstider">Varberg Solviksvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Hobbyvägen Breared|6665','2014-03-12 12:07:00',0)" title="Avgångstider">Varberg Hobbyvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Vrångagatan|6516','2014-03-12 12:07:00',0)" title="Avgångstider">Varberg Vrångagatan</a><br />
+<a href="javascript:queryStation('Jonstaka Varberg|6508','2014-03-12 12:08:00',0)" title="Avgångstider">Jonstaka Varberg</a><br />
+<a href="javascript:queryStation('Kuragård södra näs Varberg|6527','2014-03-12 12:08:00',0)" title="Avgångstider">Kuragård södra näs Varberg</a><br />
+<a href="javascript:queryStation('Strandbackavägen Träslövsläge|6510','2014-03-12 12:09:00',0)" title="Avgångstider">Strandbackavägen Träslövsläge</a><br />
+<a href="javascript:queryStation('Smea Larsa|6015','2014-03-12 12:09:00',0)" title="Avgångstider">Smea Larsa</a><br />
+<a href="javascript:queryStation('Vare|6011','2014-03-12 12:10:00',0)" title="Avgångstider">Vare</a><br />
+<a href="javascript:queryStation('Träslövsläge söder|6013','2014-03-12 12:10:00',0)" title="Avgångstider">Träslövsläge söder</a><br />
+-&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 12:12:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a></td>
+<td class="details-col-4"><strong>E</strong><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<strong>B</strong></td>
+<td class="details-col-5"><strong>Avg:&nbsp;11:55</strong><br />
+11:56<br />
+11:57<br />
+<em>11:59</em><br />
+<em>12:00</em><br />
+<em>12:01</em><br />
+12:02<br />
+<em>12:03</em><br />
+<em>12:03</em><br />
+<em>12:05</em><br />
+<em>12:06</em><br />
+<em>12:07</em><br />
+<em>12:07</em><br />
+<em>12:08</em><br />
+<em>12:08</em><br />
+<em>12:09</em><br />
+<em>12:09</em><br />
+<em>12:10</em><br />
+<em>12:10</em><br />
+<strong>Ank:&nbsp;12:12</strong><br/> </td>
+<td class="details-col-6"><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>     
+			     						
+      						<td class="details-col-7">
+      							<img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;<br />
+      							Riktning: Falkenberg/Sjukhuset/Tvååker<br />
+      						</td>
+      					</tr>
+      				
+ 
+      				</table>
+                
+                    <!-- BEGIN fotnotes -->
+                    <div class="question">
+                        Antal zoner:2                        
+                        
+                    </div>    
+                    <!-- BEGIN fotnotes -->
+                    <div class="question" id="devnotes-0">
+                         
+                    </div>
+                    <div class="v-spacer clearfix">&nbsp;</div>                    			                    
+
+      				<!-- BEGIN Adv detalis, share buttons -->
+      				<div class="bottommargin clearfix">
+      					
+      					<div class="left-float">
+      					    <a href="javascript:toggleFurtherDetails(0)">
+      					    <img id="further-details-btn-0" src="gfx/advdetaljer-collapsed-se.gif" alt="Detaljer" /></a>
+      					</div>
+      					<div class="right-float" >      						
+      							<img id="share-btn-0" class="img-btn" alt="Share" onclick="javascript:toggleShare(0,this)" src="gfx/share-se.gif" /> 
+      					</div>
+      			  	</div>
+ 			
+      				<!-- BEGIN Map -->
+      				<div id="map-0" class="hidden">                       											
+						<iframe src="MapIframe.aspx?lang=se" id="mapFrame-0" title="Karta" name="mapFrame-0" style="width:72.6em;height:37.6em" marginwidth="0" marginheight="0" scrolling="no" frameborder="0"></iframe>
+						      					
+      					<p class="question"><a href="javascript:wOpenHelp(0,'mapicons')">Förklaring till ikoner</a> <img src="gfx/redarrow.png" alt="rod-pil" /></p>
+      				</div>
+      				
+      			</div>
+      		</td>
+      	</tr>
+
+      	  
+
+      	    <!-- BEGIN Overview row -->
+
+      	<tr id="result-1" class="search-result toplevel white nobottomborder">
+      		<td class="col-1"><a href="javascript:toggleDetails(1)"><img id="details-btn-1" class="details-btn" src="gfx/detaljer-collapsed-se.gif" alt="Detaljer" /></a></td>
+      		<td class="vertically-centered centered">12:55</td>
+      		<td>13:12</td>
+      		<td>00:17</td>
+      		<td>0</td>
+      		<td><img class='spaced-icon' src='images/busslandsbygdstrafik.gif' title='Buss Landsbygdstrafik 652'  alt='Buss Landsbygdstrafik' height='18' width='18'/></td>
+      		<td class="col-7 vertically-centered">
+      		<span id="pricetag-1">42,00 kr</span>
+            
+            
+      		</td>
+      		<td class="vertically-centered">  
+      		    <img src='images/rtB_3.gif' alt='Realtid' title=''/></td>
+      		<td class="col-9">
+      		    <img class="spaced-icon" src="images/garanti.png" alt="Resegaranti" title="Resegaranti"/></a>
+      		    <img class="spaced-icon" src="images/20.png" alt="Milj&ouml;p&aring;verkan" title="Miljöpåverkan 48,000 g CO2/personkm" /></a>
+      		    
+      		</td>
+      	</tr>
+      
+            <!-- Recomputed journey row -->  
+        
+
+
+      	    <!-- BEGIN Details -->
+      	<tr id="result-1-details-2" class="result-details result-details-2 toplevel white hidden">
+      		<td colspan="9" class="toplevel further-details-cell">
+      			<div class="details-container" id="print-details-container-1">
+      			    <!-- hidden span  print-journeydate- used in print, mail, share for displaying additional info -->
+                    <div class="v-spacer clearfix"><span class="hidden" id="print-journeydate-1"><strong>2014-03-12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                    Restid: 00:17
+                    &nbsp;&nbsp;
+                    Byten: 0
+                    
+      		            &nbsp;&nbsp;<img style="margin-bottom:-0.3em;width:1.4em" src="images/garanti.png" alt="Resegaranti"/>
+      		        
+                    </span>&nbsp;</div>
+      			    <!-- BEGIN Std details tbl --> 
+      			    <table id="standard-details-1" class="details-table hidden" summary="Resv&auml;g">
+      			        
+      					<tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>      						                             
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      					
+  
+       					
+      					<tr >
+      						<td><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>
+      						<td>
+      						            <a href="javascript:queryLine('14068082219070100524600097500010020',6700)" title="Tider längs linje">652</a>
+  						        
+      						</td>
+      						<td>      						
+  						    
+  							    <a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 12:55:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br /> -&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 13:12:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a> 
+  							
+      						</td>
+      						<td>
+      						    <strong>E</strong><br /><strong>B</strong>
+      						</td>
+      						<td>
+      							<strong>Avg:&nbsp;12:55</strong><br />
+      							<strong>Ank:&nbsp;13:12</strong>
+      						</td>
+      						<td><br />
+      						    
+      						</td>
+      						<td><img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;
+      						</td>
+      					</tr>
+      					
+ 
+      				</table>	
+
+
+      				<!-- BEGIN Adv details tbl -->
+      				
+      				<table id="advanced-details-1" class="advanced-details-table" summary="Detaljerad resv&auml;g">
+      				    <tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      				
+			
+  						<tr >
+  						<td class="details-col-1"><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>  						   						
+			    <td class="details-col-2"><a href="javascript:queryLine('14068082219070100524600097500010020',6700)" title="Tider längs linje">652</a><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>
+<td class="details-col-3"><a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 12:55:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br />
+<a href="javascript:queryStation('Varberg Komedianten   Biblioteket|6566','2014-03-12 12:56:00',0)" title="Avgångstider">Varberg Komedianten   Biblioteket</a><br />
+<a href="javascript:queryStation('Varberg Lorensberg|6600','2014-03-12 12:57:00',0)" title="Avgångstider">Varberg Lorensberg</a><br />
+<a href="javascript:queryStation('Varberg Tjädervägen|6541','2014-03-12 12:59:00',0)" title="Avgångstider">Varberg Tjädervägen</a><br />
+<a href="javascript:queryStation('Varberg Bolmen|6542','2014-03-12 13:00:00',0)" title="Avgångstider">Varberg Bolmen</a><br />
+<a href="javascript:queryStation('Varberg Karlbergsvägen|6543','2014-03-12 13:01:00',0)" title="Avgångstider">Varberg Karlbergsvägen</a><br />
+<a href="javascript:queryStation('Varberg Sjukhuset|6544','2014-03-12 13:02:00',0)" title="Avgångstider">Varberg Sjukhuset</a><br />
+<a href="javascript:queryStation('Varberg Karlbergsvägen|6543','2014-03-12 13:03:00',0)" title="Avgångstider">Varberg Karlbergsvägen</a><br />
+<a href="javascript:queryStation('Varberg Bolmen|6542','2014-03-12 13:03:00',0)" title="Avgångstider">Varberg Bolmen</a><br />
+<a href="javascript:queryStation('Varberg Nya Påskberget|6602','2014-03-12 13:05:00',0)" title="Avgångstider">Varberg Nya Påskberget</a><br />
+<a href="javascript:queryStation('Varberg Solviksvägen Breared|6507','2014-03-12 13:06:00',0)" title="Avgångstider">Varberg Solviksvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Hobbyvägen Breared|6665','2014-03-12 13:07:00',0)" title="Avgångstider">Varberg Hobbyvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Vrångagatan|6516','2014-03-12 13:07:00',0)" title="Avgångstider">Varberg Vrångagatan</a><br />
+<a href="javascript:queryStation('Jonstaka Varberg|6508','2014-03-12 13:08:00',0)" title="Avgångstider">Jonstaka Varberg</a><br />
+<a href="javascript:queryStation('Kuragård södra näs Varberg|6527','2014-03-12 13:08:00',0)" title="Avgångstider">Kuragård södra näs Varberg</a><br />
+<a href="javascript:queryStation('Strandbackavägen Träslövsläge|6510','2014-03-12 13:09:00',0)" title="Avgångstider">Strandbackavägen Träslövsläge</a><br />
+<a href="javascript:queryStation('Smea Larsa|6015','2014-03-12 13:09:00',0)" title="Avgångstider">Smea Larsa</a><br />
+<a href="javascript:queryStation('Vare|6011','2014-03-12 13:10:00',0)" title="Avgångstider">Vare</a><br />
+<a href="javascript:queryStation('Träslövsläge söder|6013','2014-03-12 13:10:00',0)" title="Avgångstider">Träslövsläge söder</a><br />
+-&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 13:12:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a></td>
+<td class="details-col-4"><strong>E</strong><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<strong>B</strong></td>
+<td class="details-col-5"><strong>Avg:&nbsp;12:55</strong><br />
+12:56<br />
+12:57<br />
+<em>12:59</em><br />
+<em>13:00</em><br />
+<em>13:01</em><br />
+13:02<br />
+<em>13:03</em><br />
+<em>13:03</em><br />
+<em>13:05</em><br />
+<em>13:06</em><br />
+<em>13:07</em><br />
+<em>13:07</em><br />
+<em>13:08</em><br />
+<em>13:08</em><br />
+<em>13:09</em><br />
+<em>13:09</em><br />
+<em>13:10</em><br />
+<em>13:10</em><br />
+<strong>Ank:&nbsp;13:12</strong><br/> </td>
+<td class="details-col-6"><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>     
+			     						
+      						<td class="details-col-7">
+      							<img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;<br />
+      							Riktning: Falkenberg/Sjukhuset/Tvååker<br />
+      						</td>
+      					</tr>
+      				
+ 
+      				</table>
+                
+                    <!-- BEGIN fotnotes -->
+                    <div class="question">
+                        Antal zoner:2                        
+                        
+                    </div>    
+                    <!-- BEGIN fotnotes -->
+                    <div class="question" id="devnotes-1">
+                         
+                    </div>
+                    <div class="v-spacer clearfix">&nbsp;</div>                    			                    
+
+      				<!-- BEGIN Adv detalis, share buttons -->
+      				<div class="bottommargin clearfix">
+      					
+      					<div class="left-float">
+      					    <a href="javascript:toggleFurtherDetails(1)">
+      					    <img id="further-details-btn-1" src="gfx/advdetaljer-collapsed-se.gif" alt="Detaljer" /></a>
+      					</div>
+      					<div class="right-float" >      						
+      							<img id="share-btn-1" class="img-btn" alt="Share" onclick="javascript:toggleShare(1,this)" src="gfx/share-se.gif" /> 
+      					</div>
+      			  	</div>
+ 			
+      				<!-- BEGIN Map -->
+      				<div id="map-1" class="hidden">                       											
+						<iframe src="MapIframe.aspx?lang=se" id="mapFrame-1" title="Karta" name="mapFrame-1" style="width:72.6em;height:37.6em" marginwidth="0" marginheight="0" scrolling="no" frameborder="0"></iframe>
+						      					
+      					<p class="question"><a href="javascript:wOpenHelp(0,'mapicons')">Förklaring till ikoner</a> <img src="gfx/redarrow.png" alt="rod-pil" /></p>
+      				</div>
+      				
+      			</div>
+      		</td>
+      	</tr>
+
+      	  
+
+      	    <!-- BEGIN Overview row -->
+
+      	<tr id="result-2" class="search-result toplevel white nobottomborder">
+      		<td class="col-1"><a href="javascript:toggleDetails(2)"><img id="details-btn-2" class="details-btn" src="gfx/detaljer-collapsed-se.gif" alt="Detaljer" /></a></td>
+      		<td class="vertically-centered centered">14:15</td>
+      		<td>14:35</td>
+      		<td>00:20</td>
+      		<td>0</td>
+      		<td><img class='spaced-icon' src='images/busslandsbygdstrafik.gif' title='Buss Landsbygdstrafik 652'  alt='Buss Landsbygdstrafik' height='18' width='18'/></td>
+      		<td class="col-7 vertically-centered">
+      		<span id="pricetag-2">42,00 kr</span>
+            
+            
+      		</td>
+      		<td class="vertically-centered">  
+      		    <img src='images/rtB_3.gif' alt='Realtid' title=''/></td>
+      		<td class="col-9">
+      		    <img class="spaced-icon" src="images/garanti.png" alt="Resegaranti" title="Resegaranti"/></a>
+      		    <img class="spaced-icon" src="images/20.png" alt="Milj&ouml;p&aring;verkan" title="Miljöpåverkan 48,000 g CO2/personkm" /></a>
+      		    
+      		</td>
+      	</tr>
+      
+            <!-- Recomputed journey row -->  
+        
+
+
+      	    <!-- BEGIN Details -->
+      	<tr id="result-2-details-2" class="result-details result-details-2 toplevel white hidden">
+      		<td colspan="9" class="toplevel further-details-cell">
+      			<div class="details-container" id="print-details-container-2">
+      			    <!-- hidden span  print-journeydate- used in print, mail, share for displaying additional info -->
+                    <div class="v-spacer clearfix"><span class="hidden" id="print-journeydate-2"><strong>2014-03-12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                    Restid: 00:20
+                    &nbsp;&nbsp;
+                    Byten: 0
+                    
+      		            &nbsp;&nbsp;<img style="margin-bottom:-0.3em;width:1.4em" src="images/garanti.png" alt="Resegaranti"/>
+      		        
+                    </span>&nbsp;</div>
+      			    <!-- BEGIN Std details tbl --> 
+      			    <table id="standard-details-2" class="details-table hidden" summary="Resv&auml;g">
+      			        
+      					<tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>      						                             
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      					
+  
+       					
+      					<tr >
+      						<td><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>
+      						<td>
+      						            <a href="javascript:queryLine('14068082219070100524500097400010021',6700)" title="Tider längs linje">652</a>
+  						        
+      						</td>
+      						<td>      						
+  						    
+  							    <a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 14:15:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br /> -&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 14:35:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a> 
+  							
+      						</td>
+      						<td>
+      						    <strong>E</strong><br /><strong>B</strong>
+      						</td>
+      						<td>
+      							<strong>Avg:&nbsp;14:15</strong><br />
+      							<strong>Ank:&nbsp;14:35</strong>
+      						</td>
+      						<td><br />
+      						    
+      						</td>
+      						<td><img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;b&nbsp;T&nbsp;
+      						</td>
+      					</tr>
+      					
+ 
+      				</table>	
+
+
+      				<!-- BEGIN Adv details tbl -->
+      				
+      				<table id="advanced-details-2" class="advanced-details-table" summary="Detaljerad resv&auml;g">
+      				    <tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      				
+			
+  						<tr >
+  						<td class="details-col-1"><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>  						   						
+			    <td class="details-col-2"><a href="javascript:queryLine('14068082219070100524500097400010021',6700)" title="Tider längs linje">652</a><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>
+<td class="details-col-3"><a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 14:15:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br />
+<a href="javascript:queryStation('Varberg Komedianten   Biblioteket|6566','2014-03-12 14:16:00',0)" title="Avgångstider">Varberg Komedianten   Biblioteket</a><br />
+<a href="javascript:queryStation('Varberg Lorensberg|6600','2014-03-12 14:17:00',0)" title="Avgångstider">Varberg Lorensberg</a><br />
+<a href="javascript:queryStation('Varberg Tjädervägen|6541','2014-03-12 14:19:00',0)" title="Avgångstider">Varberg Tjädervägen</a><br />
+<a href="javascript:queryStation('Varberg Bolmen|6542','2014-03-12 14:20:00',0)" title="Avgångstider">Varberg Bolmen</a><br />
+<a href="javascript:queryStation('Varberg Karlbergsvägen|6543','2014-03-12 14:21:00',0)" title="Avgångstider">Varberg Karlbergsvägen</a><br />
+<a href="javascript:queryStation('Varberg Sjukhuset|6544','2014-03-12 14:22:00',0)" title="Avgångstider">Varberg Sjukhuset</a><br />
+<a href="javascript:queryStation('Varberg Karlbergsvägen|6543','2014-03-12 14:23:00',0)" title="Avgångstider">Varberg Karlbergsvägen</a><br />
+<a href="javascript:queryStation('Varberg Bolmen|6542','2014-03-12 14:24:00',0)" title="Avgångstider">Varberg Bolmen</a><br />
+<a href="javascript:queryStation('Varberg Peder Skrivares skola|6635','2014-03-12 14:25:00',0)" title="Avgångstider">Varberg Peder Skrivares skola</a><br />
+<a href="javascript:queryStation('Varberg Nya Påskberget|6602','2014-03-12 14:27:00',0)" title="Avgångstider">Varberg Nya Påskberget</a><br />
+<a href="javascript:queryStation('Varberg Solviksvägen Breared|6507','2014-03-12 14:29:00',0)" title="Avgångstider">Varberg Solviksvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Hobbyvägen Breared|6665','2014-03-12 14:29:00',0)" title="Avgångstider">Varberg Hobbyvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Vrångagatan|6516','2014-03-12 14:30:00',0)" title="Avgångstider">Varberg Vrångagatan</a><br />
+<a href="javascript:queryStation('Jonstaka Varberg|6508','2014-03-12 14:30:00',0)" title="Avgångstider">Jonstaka Varberg</a><br />
+<a href="javascript:queryStation('Kuragård södra näs Varberg|6527','2014-03-12 14:31:00',0)" title="Avgångstider">Kuragård södra näs Varberg</a><br />
+<a href="javascript:queryStation('Strandbackavägen Träslövsläge|6510','2014-03-12 14:31:00',0)" title="Avgångstider">Strandbackavägen Träslövsläge</a><br />
+<a href="javascript:queryStation('Smea Larsa|6015','2014-03-12 14:32:00',0)" title="Avgångstider">Smea Larsa</a><br />
+<a href="javascript:queryStation('Vare|6011','2014-03-12 14:33:00',0)" title="Avgångstider">Vare</a><br />
+<a href="javascript:queryStation('Träslövsläge söder|6013','2014-03-12 14:33:00',0)" title="Avgångstider">Träslövsläge söder</a><br />
+-&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 14:35:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a></td>
+<td class="details-col-4"><strong>E</strong><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<strong>B</strong></td>
+<td class="details-col-5"><strong>Avg:&nbsp;14:15</strong><br />
+14:16<br />
+14:17<br />
+<em>14:19</em><br />
+<em>14:20</em><br />
+<em>14:21</em><br />
+14:22<br />
+<em>14:23</em><br />
+<em>14:24</em><br />
+14:25<br />
+<em>14:27</em><br />
+<em>14:29</em><br />
+<em>14:29</em><br />
+<em>14:30</em><br />
+<em>14:30</em><br />
+<em>14:31</em><br />
+<em>14:31</em><br />
+<em>14:32</em><br />
+<em>14:33</em><br />
+<em>14:33</em><br />
+<strong>Ank:&nbsp;14:35</strong><br/> </td>
+<td class="details-col-6"><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>     
+			     						
+      						<td class="details-col-7">
+      							<img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;b&nbsp;T&nbsp;<br />
+      							Riktning: Falkenberg/Sjukhuset/Tvååker<br />
+      						</td>
+      					</tr>
+      				
+ 
+      				</table>
+                
+                    <!-- BEGIN fotnotes -->
+                    <div class="question">
+                        Antal zoner:2<p>b - Fortsätter skoldagar till Peder Skrivares skola.</p>
+<p>T - Går skoldagar.</p>
+                        
+                        
+                    </div>    
+                    <!-- BEGIN fotnotes -->
+                    <div class="question" id="devnotes-2">
+                         
+                    </div>
+                    <div class="v-spacer clearfix">&nbsp;</div>                    			                    
+
+      				<!-- BEGIN Adv detalis, share buttons -->
+      				<div class="bottommargin clearfix">
+      					
+      					<div class="left-float">
+      					    <a href="javascript:toggleFurtherDetails(2)">
+      					    <img id="further-details-btn-2" src="gfx/advdetaljer-collapsed-se.gif" alt="Detaljer" /></a>
+      					</div>
+      					<div class="right-float" >      						
+      							<img id="share-btn-2" class="img-btn" alt="Share" onclick="javascript:toggleShare(2,this)" src="gfx/share-se.gif" /> 
+      					</div>
+      			  	</div>
+ 			
+      				<!-- BEGIN Map -->
+      				<div id="map-2" class="hidden">                       											
+						<iframe src="MapIframe.aspx?lang=se" id="mapFrame-2" title="Karta" name="mapFrame-2" style="width:72.6em;height:37.6em" marginwidth="0" marginheight="0" scrolling="no" frameborder="0"></iframe>
+						      					
+      					<p class="question"><a href="javascript:wOpenHelp(0,'mapicons')">Förklaring till ikoner</a> <img src="gfx/redarrow.png" alt="rod-pil" /></p>
+      				</div>
+      				
+      			</div>
+      		</td>
+      	</tr>
+
+      	  
+
+      	    <!-- BEGIN Overview row -->
+
+      	<tr id="result-3" class="search-result toplevel white nobottomborder">
+      		<td class="col-1"><a href="javascript:toggleDetails(3)"><img id="details-btn-3" class="details-btn" src="gfx/detaljer-collapsed-se.gif" alt="Detaljer" /></a></td>
+      		<td class="vertically-centered centered">15:07</td>
+      		<td>15:22</td>
+      		<td>00:15</td>
+      		<td>0</td>
+      		<td><img class='spaced-icon' src='images/busslandsbygdstrafik.gif' title='Buss Landsbygdstrafik 652'  alt='Buss Landsbygdstrafik' height='18' width='18'/></td>
+      		<td class="col-7 vertically-centered">
+      		<span id="pricetag-3">42,00 kr</span>
+            
+            
+      		</td>
+      		<td class="vertically-centered">  
+      		    <img src='images/rtB_3.gif' alt='Realtid' title=''/></td>
+      		<td class="col-9">
+      		    <img class="spaced-icon" src="images/garanti.png" alt="Resegaranti" title="Resegaranti"/></a>
+      		    <img class="spaced-icon" src="images/20.png" alt="Milj&ouml;p&aring;verkan" title="Miljöpåverkan 48,000 g CO2/personkm" /></a>
+      		    
+      		</td>
+      	</tr>
+      
+            <!-- Recomputed journey row -->  
+        
+
+
+      	    <!-- BEGIN Details -->
+      	<tr id="result-3-details-2" class="result-details result-details-2 toplevel white hidden">
+      		<td colspan="9" class="toplevel further-details-cell">
+      			<div class="details-container" id="print-details-container-3">
+      			    <!-- hidden span  print-journeydate- used in print, mail, share for displaying additional info -->
+                    <div class="v-spacer clearfix"><span class="hidden" id="print-journeydate-3"><strong>2014-03-12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</strong>
+                    Restid: 00:15
+                    &nbsp;&nbsp;
+                    Byten: 0
+                    
+      		            &nbsp;&nbsp;<img style="margin-bottom:-0.3em;width:1.4em" src="images/garanti.png" alt="Resegaranti"/>
+      		        
+                    </span>&nbsp;</div>
+      			    <!-- BEGIN Std details tbl --> 
+      			    <table id="standard-details-3" class="details-table hidden" summary="Resv&auml;g">
+      			        
+      					<tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>      						                             
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      					
+  
+       					
+      					<tr >
+      						<td><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>
+      						<td>
+      						            <a href="javascript:queryLine('14068082219070100524900097800010016',6700)" title="Tider längs linje">652</a>
+  						        
+      						</td>
+      						<td>      						
+  						    
+  							    <a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 15:07:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br /> -&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 15:22:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a> 
+  							
+      						</td>
+      						<td>
+      						    <strong>E</strong><br /><strong>B</strong>
+      						</td>
+      						<td>
+      							<strong>Avg:&nbsp;15:07</strong><br />
+      							<strong>Ank:&nbsp;15:22</strong>
+      						</td>
+      						<td><br />
+      						    
+      						</td>
+      						<td><img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;b&nbsp;g&nbsp;T&nbsp;
+      						</td>
+      					</tr>
+      					
+ 
+      				</table>	
+
+
+      				<!-- BEGIN Adv details tbl -->
+      				
+      				<table id="advanced-details-3" class="advanced-details-table" summary="Detaljerad resv&auml;g">
+      				    <tr class="details-headings">
+      						<th class="details-col-1"></th>
+      						<th class="details-col-2">
+      						Linje    
+      						</th>
+      						<th class="details-col-3">Från -&gt; Till</th>
+      						<th class="details-col-4">Läge</th>
+      						<th class="details-col-5">Tid</th>
+      						<th class="details-col-6">Trafikinfo</th>
+      						<th class="details-col-7">Anm</th>
+      					</tr>
+      				
+			
+  						<tr >
+  						<td class="details-col-1"><img src='images/busslandsbygdstrafik.gif' alt='Buss Landsbygdstrafik'  title='Buss Landsbygdstrafik'/></td>  						   						
+			    <td class="details-col-2"><a href="javascript:queryLine('14068082219070100524900097800010016',6700)" title="Tider längs linje">652</a><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>
+<td class="details-col-3"><a href="javascript:queryStation('Varberg Station (Bussterm)|6700','2014-03-12 15:07:00',0)" title="Avgångstider"><strong>Varberg Station (Bussterm)</strong></a><br />
+<a href="javascript:queryStation('Varberg Komedianten   Biblioteket|6566','2014-03-12 15:08:00',0)" title="Avgångstider">Varberg Komedianten   Biblioteket</a><br />
+<a href="javascript:queryStation('Varberg Lorensberg|6600','2014-03-12 15:09:00',0)" title="Avgångstider">Varberg Lorensberg</a><br />
+<a href="javascript:queryStation('Varberg Tjädervägen|6541','2014-03-12 15:11:00',0)" title="Avgångstider">Varberg Tjädervägen</a><br />
+<a href="javascript:queryStation('Varberg Peder Skrivares skola|6635','2014-03-12 15:13:00',0)" title="Avgångstider">Varberg Peder Skrivares skola</a><br />
+<a href="javascript:queryStation('Varberg Nya Påskberget|6602','2014-03-12 15:15:00',0)" title="Avgångstider">Varberg Nya Påskberget</a><br />
+<a href="javascript:queryStation('Varberg Solviksvägen Breared|6507','2014-03-12 15:16:00',0)" title="Avgångstider">Varberg Solviksvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Hobbyvägen Breared|6665','2014-03-12 15:17:00',0)" title="Avgångstider">Varberg Hobbyvägen Breared</a><br />
+<a href="javascript:queryStation('Varberg Vrångagatan|6516','2014-03-12 15:17:00',0)" title="Avgångstider">Varberg Vrångagatan</a><br />
+<a href="javascript:queryStation('Jonstaka Varberg|6508','2014-03-12 15:18:00',0)" title="Avgångstider">Jonstaka Varberg</a><br />
+<a href="javascript:queryStation('Kuragård södra näs Varberg|6527','2014-03-12 15:18:00',0)" title="Avgångstider">Kuragård södra näs Varberg</a><br />
+<a href="javascript:queryStation('Strandbackavägen Träslövsläge|6510','2014-03-12 15:19:00',0)" title="Avgångstider">Strandbackavägen Träslövsläge</a><br />
+<a href="javascript:queryStation('Smea Larsa|6015','2014-03-12 15:19:00',0)" title="Avgångstider">Smea Larsa</a><br />
+<a href="javascript:queryStation('Vare|6011','2014-03-12 15:20:00',0)" title="Avgångstider">Vare</a><br />
+<a href="javascript:queryStation('Träslövsläge söder|6013','2014-03-12 15:21:00',0)" title="Avgångstider">Träslövsläge söder</a><br />
+-&gt; <a href="javascript:queryStation('Ås Gamla Köpstad|6014','2014-03-12 15:22:00',1)" title="Ankomsttider"><strong>Ås Gamla Köpstad</strong></a></td>
+<td class="details-col-4"><strong>E</strong><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<strong>B</strong></td>
+<td class="details-col-5"><strong>Avg:&nbsp;15:07</strong><br />
+15:08<br />
+15:09<br />
+<em>15:11</em><br />
+15:13<br />
+<em>15:15</em><br />
+<em>15:16</em><br />
+<em>15:17</em><br />
+<em>15:17</em><br />
+<em>15:18</em><br />
+<em>15:18</em><br />
+<em>15:19</em><br />
+<em>15:19</em><br />
+<em>15:20</em><br />
+<em>15:21</em><br />
+<strong>Ank:&nbsp;15:22</strong><br/> </td>
+<td class="details-col-6"><br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+</td>     
+			     						
+      						<td class="details-col-7">
+      							<img src='gfx/wheelchair.png' alt='R anpassad' title='Rörelsehinder'/>&nbsp;<img src='gfx/vision-impairment.png' alt='S anpassad' title='Synskada'/>&nbsp;b&nbsp;g&nbsp;T&nbsp;<br />
+      							Riktning: Tvååker<br />
+      						</td>
+      					</tr>
+      				
+ 
+      				</table>
+                
+                    <!-- BEGIN fotnotes -->
+                    <div class="question">
+                        Antal zoner:2<p>b - Fortsätter skoldagar till Peder Skrivares skola.</p>
+<p>g - Efter Tvååker går turen via Himle till Varberg.</p>
+<p>T - Går skoldagar.</p>
+                        
+                        
+                    </div>    
+                    <!-- BEGIN fotnotes -->
+                    <div class="question" id="devnotes-3">
+                         
+                    </div>
+                    <div class="v-spacer clearfix">&nbsp;</div>                    			                    
+
+      				<!-- BEGIN Adv detalis, share buttons -->
+      				<div class="bottommargin clearfix">
+      					
+      					<div class="left-float">
+      					    <a href="javascript:toggleFurtherDetails(3)">
+      					    <img id="further-details-btn-3" src="gfx/advdetaljer-collapsed-se.gif" alt="Detaljer" /></a>
+      					</div>
+      					<div class="right-float" >      						
+      							<img id="share-btn-3" class="img-btn" alt="Share" onclick="javascript:toggleShare(3,this)" src="gfx/share-se.gif" /> 
+      					</div>
+      			  	</div>
+ 			
+      				<!-- BEGIN Map -->
+      				<div id="map-3" class="hidden">                       											
+						<iframe src="MapIframe.aspx?lang=se" id="mapFrame-3" title="Karta" name="mapFrame-3" style="width:72.6em;height:37.6em" marginwidth="0" marginheight="0" scrolling="no" frameborder="0"></iframe>
+						      					
+      					<p class="question"><a href="javascript:wOpenHelp(0,'mapicons')">Förklaring till ikoner</a> <img src="gfx/redarrow.png" alt="rod-pil" /></p>
+      				</div>
+      				
+      			</div>
+      		</td>
+      	</tr>
+
+    
+      	<tr class="mid-grey">
+      		<td colspan="9" class="bottom-cell"><em>Tider angivna med kursiv stil är beräknade cirkatider. Dessa varierar ca 1-5 minuter vid hållplats.</em></td>
+      	</tr>
+      </table>
+                <div class="mid-grey centered"></div>
+      </div>
+
+      <div class="cornerfix" id="cornerfix-bl"></div>
+
+      <div class="cornerfix" id="cornerfix-br"></div>
+      
+      <p id="results-nav-later" class="centered clearfix">
+      
+      	  <a href="javascript:submitAction('next')" title="Senare resor"><img src="gfx/arrowdown.png" alt="pil-ner&aring;t" class="results-nav-arrow" id="arrow-down" /> Senare resor</a>
+      
+      	
+      </p>
+      
+    </div>
+    <div id="ie-bottom-fix">&nbsp;</div>
+    
+        
+    
+
+    
+    
+    <p id="selected-means" class="grey">Valda trafikslag:&nbsp;Regionbuss, Stadstrafik, Tåg</p>
+    <p id="rsh"></p>
+
+</div>    
+    <div>
+
+ 
+ <input type="hidden" name="cmdAction" value="search"/>
+<input type="hidden" name="EU_Spirit" value="False"/>
+<input type="hidden" name="TNSource" value="HALLAND"/>
+<input type="hidden" name="SupportsScript" value="True"/>
+<input type="hidden" name="Language" value="se"/>
+<input type="hidden" name="VerNo" value="7.1.1.2.0.38p3"/>
+<input type="hidden" name="selRegionFr"  value="741"/>
+<input type="hidden" name="optTypeFr"  value="0"/>
+<input type="hidden" name="optTypeTo"  value="0"/>
+<input type="hidden" name="inpWaitTime"  value=""/>
+<input type="hidden" name="selChangeTime"  value="0"/>
+<input type="hidden" name="selPriority"  value="0"/>
+<input type="hidden" name="selWalkSpeed"  value="0"/>
+<input type="hidden" name="optReturn"  value="0"/>
+<input type="hidden" name="selPointFr"  value="Varberg Station (Bussterm)|6700|0"/>
+<input type="hidden" name="selPointTo"  value="Ã…s Gamla KÃ¶pstad|6014|0"/>
+<input type="hidden" name="selPointFrKey"  value="6700"/>
+<input type="hidden" name="selPointToKey"  value="6014"/>
+<input type="hidden" name="selPointInterm"  value=""/>
+<input type="hidden" name="selPointIntermKey"  value=""/>
+<input type="hidden" name="TrafficMask"  value="1,2,4"/>
+<input type="hidden" name="RSH"  value=""/>
+<input type="hidden" name="FirstStart"  value="2014-03-12 11:55:00"/>
+<input type="hidden" name="LastStart"  value="2014-03-12 15:07:00"/>
+<input type="hidden" name="FirstStart2"  value=""/>
+<input type="hidden" name="LastStart2"  value=""/>
+<input type="hidden" name="CacheFile"  value="1628256448597224139"/>
+<input type="hidden" name="CacheFile2"  value=""/>
+<input type="hidden" name="CacheFileSingleStation"  value=""/>
+<input type="hidden" name="inpDate2"  value="2014-03-01"/>
+<input type="hidden" name="inpTime2"  value="01:13"/>
+<input type="hidden" name="selDirection2"  value="0"/>
+<input type="hidden" name="selSingleStation"  value=""/>
+<input type="hidden" name="selSingleStationKey"  value=""/>
+<input type="hidden" name="inpDateSingleStation"  value="2014-02-28"/>
+<input type="hidden" name="inpTimeSingleStation"  value="21:13"/>
+<input type="hidden" name="selDirectionSingleStation"  value="0"/>
+<input type="hidden" name="Source" value="resultspage"/>
+<input type="hidden" name="HtmlSource" value=""/>
+<!-- served by RPWEB1 -->
+ </div>
+
+<!-- BEGIN return voyage selector-->    
+    
+  
+<!-- BEGIN Email --> 
+    <div id="email-form" class="share-box hidden" >
+        <div class="share-header" >
+            <a href="javascript:addClass('email-form','hidden')" class="share-close right-float"><strong>X</strong></a><strong>Skicka e-post</strong>
+        </div>
+		<div class="contents">					
+			<p id="email-form-label">&nbsp;</p>
+			<p class="fields"><label for="inpSender">E-post:</label><input type="text" class="text-input" name="inpSender" id="inpSender"/><input class="submit-button" type="button" onclick="shareMailOK()" value="OK"/></p>			
+		</div>
+        <div class="share-bottom-shade clearfix">&nbsp;</div>
+    </div>
+
+
+  </form>
+
+<!-- BEGIN Share --> 
+  <div id="share-0" class="share-box hidden" >
+            <div class="share-header" >
+                <a href="javascript:addClass('share-0','hidden')" class="share-close right-float"><strong>X</strong></a><strong>Dela / Skicka</strong>
+            </div>
+            <div class="share-contents" >
+                <a class="share-button" href="javascript:sharePrint()">
+                    <img class="share-icon" alt="Skicka till skrivare" src="gfx/share-print.png" />
+                    <span class="share-label">Skriv ut</span>
+                </a>
+                <a class="share-button" href="javascript:shareMail()">
+                    <img class="share-icon" alt="Skicka till E-post" src="gfx/share-mail.png" />
+                    <span class="share-label">Mail</span>
+                </a>
+                <a class="share-button" href="javascript:shareFacebook()">
+                    <img class="share-icon" alt="Dela på Facebook" src="gfx/share-facebook.png" />
+                    <span class="share-label">Facebook</span>
+                </a>
+                <a class="share-button" href="javascript:shareGoogle()">
+                    <img class="share-icon" alt="Dela på Google" src="gfx/share-google.png" />
+                    <span class="share-label">Google</span>
+                </a>
+                <a class="share-button" href="javascript:shareTwitter()">
+                    <img class="share-icon" alt="Dela på Twitter" src="gfx/share-twitter.png" />
+                    <span class="share-label">Twitter</span>
+                </a>
+                <a class="share-button" href="javascript:shareMyspace()">
+                    <img class="share-icon" alt="dela på Myspace" src="gfx/share-myspace.png" />
+                    <span class="share-label">MySpace</span>
+                </a>
+                <div class="share-bottom-shade clearfix">&nbsp;</div>
+            </div>
+   </div>
+
+       
+<!-- BEGIN Deviation msg -->
+      
+
+       
+<!-- BEGIN Calendar-->  
+  <div id="calendar" class="calendar hidden"></div>
+
+   
+<!-- BEGIN Curtain --> 
+<div id="curtain" class="hidden"></div>  
+  
+ 
+</div>
+
+  <!-- Notis start -->
+  
+              
+          <div id="travelplannerthreedivnotes">
+            <div class="inner">
+                <div class="bl"><div class="br"><div class="tl"><div class="tr">
+                    <p style="min-height:15em" ><b>Sökreslutat och fotnoter</b><br />När du sökt din resa presenteras ett antal förslag på resor under fliken "Resealternativ". <br />För att inte missa viktig information i din resa är det viktigt att du klickar vidare på flikarna "Resväg" och "Detaljerad resväg". Här visas eventuella byten, avvikelser och fotnotstexter.</p>
+                </div></div></div></div>
+                <div >&nbsp;</div> 
+            </div>
+            <div class="inner">
+                <div class="bl"><div class="br"><div class="tl"><div class="tr">
+                    <p style="min-height:15em" ><b>Priser</b><br />För mer information om priser på kontantbiljetter och våra olika typer av rabatt- och pendelkort hänvisar vi till startsidans menyflik "Biljetter & priser".<br /><br /></p>
+                </div></div></div></div>
+                <div >&nbsp;</div> 
+            </div>
+            <div class="inner">
+                <div class="bl"><div class="br"><div class="tl"><div class="tr">
+                    <p style="min-height:15em" ><b>Resegaranti</b><br /><img src=images/garanti.png> Betyder att <a href=http://www.hallandstrafiken.se/resegaranti target=_blank>Resegaranti</a> gäller.<br /><br /> </p>
+                </div></div></div></div>
+                <div >&nbsp;</div> 
+            </div>
+        </div>
+              
+        
+</div>
+</body>
+</html>
+
+
