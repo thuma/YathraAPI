@@ -8,6 +8,7 @@ import tornado.web
 import tornado.httpclient
 import tornado.httputil
 import tornado.escape
+import hlt
 
 cache = {}
 
@@ -172,6 +173,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application([
     (r"/sj/", MainHandler),
+    (r"/hlt/", hlt.HltHandler),
     (r"/sj/cache/", CachePrint),
 ])
 
