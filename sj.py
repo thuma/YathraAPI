@@ -99,7 +99,7 @@ class SjHandler(tornado.web.RequestHandler):
 		self.searchdata += 'travelQuery.outTimeDeparture=true&'
 		self.searchdata += 'submitSearchLater=S%C3%B6k%20resa'
 			
-		self.request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='GET', follow_redirects=True, max_redirects=3, request_timeout=4,0)
+		self.request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='GET', follow_redirects=True, max_redirects=3, request_timeout=4.0)
 		self.http_client.fetch(self.request_setup, self.gotsession)
 		
 	def gotsession(self,response):
