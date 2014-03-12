@@ -99,11 +99,15 @@ class SjHandler(tornado.web.RequestHandler):
 		self.searchdata += 'travelQuery.outTimeDeparture=true&'
 		self.searchdata += 'submitSearchLater=S%C3%B6k%20resa'
 			
-		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='GET', follow_redirects=True, max_redirects=3)
-		self.http_client.fetch(request_setup, self.gotsession)
+		self.request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='GET', follow_redirects=True, max_redirects=3, request_timeout=4,0)
+		self.http_client.fetch(self.request_setup, self.gotsession)
 		
 	def gotsession(self,response):
-		self.cookie = response.headers["set-cookie"].split(';')[0]
+		try:
+			self.cookie = response.headers["set-cookie"].split(';')[0]
+		except:
+			self.http_client.fetch(self.request_setup, self.gotsession)
+			return
 		header_setup = tornado.httputil.HTTPHeaders({"Cookie": self.cookie,'Content-Type':'application/x-www-form-urlencoded'})
 		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/timetable/searchtravel.do", method='POST', headers=header_setup, body=self.searchdata, follow_redirects=True, max_redirects=3)
 		self.http_client.fetch(request_setup, self.doneserach)
