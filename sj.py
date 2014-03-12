@@ -1,15 +1,9 @@
-# !/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 import re
 import json
-import tornado.ioloop
-import tornado.web
 import tornado.httpclient
 import tornado.httputil
 import tornado.escape
-import hlt
-
+import tornado.ioloop
 cache = {}
 
 stops = open('snalltaget.json')
@@ -23,7 +17,7 @@ class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		self.write(cache)
 
-class MainHandler(tornado.web.RequestHandler):
+class SjHandler(tornado.web.RequestHandler):
 	cookie = ''
 	
 	def returnrequest(self, data):
@@ -171,12 +165,3 @@ class MainHandler(tornado.web.RequestHandler):
 		self.write(trips)
 		self.finish()
 
-application = tornado.web.Application([
-    (r"/sj/", MainHandler),
-    (r"/hlt/", hlt.HltHandler),
-    (r"/sj/cache/", CachePrint),
-])
-
-application.listen(10074)
-tornado.ioloop.IOLoop.instance().start()
- 
