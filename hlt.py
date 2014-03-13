@@ -23,7 +23,7 @@ for row in list_data:
 		hltstops[parts[4]]['id'] = parts[3]
 		hltstops[parts[4]]['name'] = parts[0]
 	except:
-		print 'last row'
+		parts = ''
 
 class HltHandler(tornado.web.RequestHandler):
 

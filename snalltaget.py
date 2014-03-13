@@ -37,7 +37,7 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 			self.gettime = self.get_argument('departureTime')
 		except:
 			self.returnerror('Missing deparature time')
-			return ''
+			return
 			
 		try:
 			self.getfrom = self.get_argument('from')
@@ -46,7 +46,7 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 			self.query['DepartureLocationProducerCode'] = int(self.getfrom[:2])
 		except:
 			self.returnerror('Missing deparature station')
-			return ''
+			return
 		
 		try:
 			self.getto = self.get_argument('to')
@@ -55,20 +55,20 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 			self.query['ArrivalLocationProducerCode'] = int(self.getto[:2])
 		except:
 			self.returnerror('Missing arrival station')
-			return ''
+			return
 
 		try:
 			self.gettotime = self.get_argument('arrivalTime')
 		except:
 			self.returnerror('Missing arrivalTime HH:MM')
-			return ''
+			return
 			
 		self.query['TravelType'] = "E"
 		self.query['Passengers'] = [{"PassengerCategory":"VU"}]
 		
 		try:
 			self.returnrequest(snalltagetcache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
-			return ''
+			return
 		except:
 			notfound = 1
 		
@@ -152,10 +152,10 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 					break
 		try:
 			self.returnrequest(snalltagetcache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
-			return ''
+			return
 		except:
 			self.returnerror('Trip not found in search')
-			return ''
+			return
 
 	def returnrequest(self, data):
 		outdata = {"travelerAge":35,
