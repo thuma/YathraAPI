@@ -3,9 +3,7 @@
 
 import re
 import json
-import requests
 import tornado.httpclient
-from threading import Thread
 
 snalltagetstops = open('snalltaget.json')
 snalltagetstops = json.load(snalltagetstops)
@@ -17,12 +15,148 @@ snalltagetstops = {}
 
 snalltagetcache = {}
 
+class CachePrint(tornado.web.RequestHandler):
+	def get(self):
+		global snalltagetcache
+		self.write(snalltagetcache)
+
 
 class SnalltagetHandler(tornado.web.RequestHandler):
+	
 	@tornado.web.asynchronous
 	def get(self):
-		Thread(target=self.makerequest).start()
+		self.http_client = tornado.httpclient.AsyncHTTPClient()
+		global snalltagetcache
+		global snalltagetstopsa
+
+		self.query = {}
 		
+		try:
+			self.query['DepartureDateTime'] = self.get_argument('date') +' '+ self.get_argument('departureTime')[:2]+':00'
+			self.getdate = self.get_argument('date')
+			self.gettime = self.get_argument('departureTime')
+		except:
+			self.returnerror('Missing deparature time')
+			return ''
+			
+		try:
+			self.getfrom = self.get_argument('from')
+			self.fromname = snalltagetstopsa[self.getfrom]
+			self.query['DepartureLocationId'] = int(self.getfrom[-5:])
+			self.query['DepartureLocationProducerCode'] = int(self.getfrom[:2])
+		except:
+			self.returnerror('Missing deparature station')
+			return ''
+		
+		try:
+			self.getto = self.get_argument('to')
+			self.toname = snalltagetstopsa[self.getto]
+			self.query['ArrivalLocationId'] = int(self.getto[-5:])
+			self.query['ArrivalLocationProducerCode'] = int(self.getto[:2])
+		except:
+			self.returnerror('Missing arrival station')
+			return ''
+
+		try:
+			self.gettotime = self.get_argument('arrivalTime')
+		except:
+			self.returnerror('Missing arrivalTime HH:MM')
+			return ''
+			
+		self.query['TravelType'] = "E"
+		self.query['Passengers'] = [{"PassengerCategory":"VU"}]
+		
+		try:
+			self.returnrequest(snalltagetcache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
+			return ''
+		except:
+			notfound = 1
+		
+		headers = tornado.httputil.HTTPHeaders({'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+							'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36',
+							'Accept-Encoding': 'gzip,deflate,sdch',
+							'Accept-Language': 'sv-SE,sv;q=0.8,en-US;q=0.6,en;q=0.4'})
+	
+		self.request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/boka-biljett", method='GET', follow_redirects=True, max_redirects=3, request_timeout=4.0,headers=headers)
+		self.http_client.fetch(self.request_setup, self.gotsession)
+		
+	def gotsession(self,response):
+
+		try:
+			self.cookie = response.headers["set-cookie"].split(';')[0]
+		except:
+			self.http_client.fetch(self.request_setup, self.gotsession)
+			return 
+
+		header_setup = tornado.httputil.HTTPHeaders({'Accept':'application/json, text/plain, */*',
+'Accept-Encoding':'gzip,deflate,sdch',
+'Accept-Language':'sv-SE',
+'Connection':'keep-alive',
+'Content-Type':'application/json;charset=UTF-8',
+'Cookie':self.cookie,
+'Host':'boka.snalltaget.se',
+'Origin':'https://boka.snalltaget.se',
+'Referer':'https://boka.snalltaget.se/boka-biljett',
+'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36'})
+
+		request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/api/timetables", method='POST', headers=header_setup, body=json.dumps(self.query), follow_redirects=True, max_redirects=3)
+		self.http_client.fetch(request_setup, self.gottrips)
+
+	def gottrips(self, response):
+		self.trips = json.loads(response.body)
+		try:
+			if len(self.trips['JourneyAdvices']) > 10:
+				maxint = 10
+			else:
+				maxint = len(self.trips['JourneyAdvices'])
+		except:
+			self.returnerror('No trip times found')
+			return
+			
+		pquery = {'TimetableId':self.trips['Id'], 'JourneyConnectionReferences':[]}
+
+		for i in range(0, maxint):
+			pquery['JourneyConnectionReferences'].append(self.trips['JourneyAdvices'][i]['JourneyConnectionReference'])
+		
+
+		header_setup = tornado.httputil.HTTPHeaders({'Accept':'application/json, text/plain, */*',
+'Accept-Encoding':'gzip,deflate,sdch',
+'Accept-Language':'sv-SE',
+'Connection':'keep-alive',
+'Content-Type':'application/json;charset=UTF-8',
+'Host':'boka.snalltaget.se',
+"Cookie": self.cookie,
+'Origin':'https://boka.snalltaget.se',
+'Referer':'https://boka.snalltaget.se/boka-biljett',
+'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36'})
+
+		request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/api/journeyadvices/lowestprices", method='POST',  body=json.dumps(pquery), headers=header_setup, follow_redirects=True, max_redirects=3)
+		self.http_client.fetch(request_setup, self.gotprices)
+
+	def gotprices(self, response):
+		price = json.loads(response.body)
+
+		for i in range(0, len(self.trips['JourneyAdvices'])):
+			for j in range (0,len(price)):
+				if price[j]['JourneyConnectionReference'] == self.trips['JourneyAdvices'][i]['JourneyConnectionReference']:
+					self.trips['JourneyAdvices'][i]['IsSleeperTrain'] = price[j]['IsSleeperTrain']
+					self.trips['JourneyAdvices'][i]['LowestTotalPrice'] = price[j]['LowestTotalPrice']
+					self.trips['JourneyAdvices'][i]['Currency'] = price[j]['Currency']
+					stopfrom = str(self.trips['JourneyAdvices'][i]['DepartureLocation']['ProducerCode']*100000 + self.trips['JourneyAdvices'][i]['DepartureLocation']['LocationId'])
+					stopto = str(self.trips['JourneyAdvices'][i]['ArrivalLocation']['ProducerCode']*100000 + self.trips['JourneyAdvices'][i]['ArrivalLocation']['LocationId'])
+					datefrom = self.trips['JourneyAdvices'][i]['DepartureDateTime'][:10]
+					timefrom = self.trips['JourneyAdvices'][i]['DepartureDateTime'][11:16]
+					timeto = self.trips['JourneyAdvices'][i]['ArrivalDateTime'][11:16]
+					self.trips['JourneyAdvices'][i]['ArrivalDateTime']
+					snalltagetcache[datefrom+stopfrom+timefrom+stopto+timeto] = self.trips['JourneyAdvices'][i]
+					break
+		try:
+			self.returnrequest(snalltagetcache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
+			return ''
+		except:
+			self.returnerror('Trip not found in search')
+			return ''
+
 	def returnrequest(self, data):
 		outdata = {"travelerAge":35,
 		"travelerIsStudent":False,
@@ -38,112 +172,12 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 		outdata['to'] = data['ArrivalLocation']['LocationNameShort']
 		outdata['price'] = int(data['LowestTotalPrice'])
 		outdata['currency'] = data['Currency']
+		self.write(outdata)
+		self.finish()
 		
-		tornado.ioloop.IOLoop.instance().add_callback(self.returndata, outdata)
 	
 	def returnerror(self, data):
-		returdata = {}
-		returdata['error'] = data
-		tornado.ioloop.IOLoop.instance().add_callback(self.returndata, returdata)
-	
-	def makerequest(self):
-		global snalltagetcache
-		global snalltagetstopsa
-
-		query = {}
-		
-		try:
-			query['DepartureDateTime'] = self.get_argument('date') +' '+ self.get_argument('departureTime')[:2]+':00'
-			getdate = self.get_argument('date')
-			gettime = self.get_argument('departureTime')
-		except:
-			self.returnerror('Missing deparature time')
-			return ''
-			
-		try:
-			getfrom = self.get_argument('from')
-			fromname = snalltagetstopsa[getfrom]
-			query['DepartureLocationId'] = int(getfrom[-5:])
-			query['DepartureLocationProducerCode'] = int(getfrom[:2])
-		except:
-			self.returnerror('Missing deparature station')
-			return ''
-		
-		try:
-			getto = self.get_argument('to')
-			toname = snalltagetstopsa[getto]
-			query['ArrivalLocationId'] = int(getto[-5:])
-			query['ArrivalLocationProducerCode'] = int(getto[:2])
-		except:
-			self.returnerror('Missing arrival station')
-			return ''
-
-		try:
-			gettotime = self.get_argument('arrivalTime')
-		except:
-			self.returnerror('Missing arrivalTime HH:MM')
-			return ''
-			
-		query['TravelType'] = "E"
-		query['Passengers'] = [{"PassengerCategory":"VU"}]
-		
-		try:
-			self.returnrequest(snalltagetcache[getdate+getfrom+gettime+getto+gettotime])
-			return ''
-		except:
-			notfound = 1
-		
-		r = requests.get('https://boka.snalltaget.se/boka-biljett')
-		cookie = r.cookies["Token"]
-		cookies = dict(Token=cookie)
-		
-		headers = {'content-type': 'application/json'}
-
-		r = requests.post('https://boka.snalltaget.se/api/timetables', data=json.dumps(query), headers=headers, cookies=cookies)
-
-		trips = r.json()
-			
-		try:
-			if len(trips['JourneyAdvices']) > 10:
-				max = 10
-			else:
-				max = len(trips['JourneyAdvices'])
-		except:
-			self.returnerror('No trip found list empty')
-			return ''
-			
-		pquery = {'TimetableId':trips['Id'], 'JourneyConnectionReferences':[]}
-
-		for i in range(0, max):
-			pquery['JourneyConnectionReferences'].append(trips['JourneyAdvices'][i]['JourneyConnectionReference'])
-
-		r = requests.post('https://boka.snalltaget.se/api/journeyadvices/lowestprices', data=json.dumps(pquery), headers=headers, cookies=cookies)
-
-		price = r.json()
-
-		for i in range(0, len(trips['JourneyAdvices'])):
-			for j in range (0,len(price)):
-				if price[j]['JourneyConnectionReference'] == trips['JourneyAdvices'][i]['JourneyConnectionReference']:
-					trips['JourneyAdvices'][i]['IsSleeperTrain'] = price[j]['IsSleeperTrain']
-					trips['JourneyAdvices'][i]['LowestTotalPrice'] = price[j]['LowestTotalPrice']
-					trips['JourneyAdvices'][i]['Currency'] = price[j]['Currency']
-					stopfrom = str(trips['JourneyAdvices'][i]['DepartureLocation']['ProducerCode']*100000 + trips['JourneyAdvices'][i]['DepartureLocation']['LocationId'])
-					stopto = str(trips['JourneyAdvices'][i]['ArrivalLocation']['ProducerCode']*100000 +trips['JourneyAdvices'][i]['ArrivalLocation']['LocationId'])
-					datefrom = trips['JourneyAdvices'][i]['DepartureDateTime'][:10]
-					timefrom = trips['JourneyAdvices'][i]['DepartureDateTime'][11:16]
-					timeto = trips['JourneyAdvices'][i]['ArrivalDateTime'][11:16]
-					trips['JourneyAdvices'][i]['ArrivalDateTime']
-					snalltagetcache[datefrom+stopfrom+timefrom+stopto+timeto] = trips['JourneyAdvices'][i]
-					break
-		try:
-			self.returnrequest(snalltagetcache[getdate+getfrom+gettime+getto+gettotime])
-			return ''
-		except:
-			self.returnerror('Trip not found in search')
-			return ''
-		
-	def returndata(self, trips):
-		self.write(trips)
+		self.write({'error':data})
 		self.finish()
 
 

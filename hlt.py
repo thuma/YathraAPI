@@ -84,6 +84,7 @@ class HltHandler(tornado.web.RequestHandler):
 		except:
 			self.http_client.fetch(self.myhttprequest, self.searchdone)
 			return
+
 		scripts = html_doc.find_all('script')
 
 		for script in scripts:

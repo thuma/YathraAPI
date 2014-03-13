@@ -15,6 +15,7 @@ stops = {}
 
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
+		global cache
 		self.write(cache)
 
 class SjHandler(tornado.web.RequestHandler):
