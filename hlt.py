@@ -12,7 +12,7 @@ try:
 except httpclient.HTTPError as e:
     print "Error:", e
 http_client.close()
-
+htlcache = {}
 hltstops = {}
 list_data = list_data.split('\n')
 
@@ -29,7 +29,7 @@ class HltHandler(tornado.web.RequestHandler):
 
 	@tornado.web.asynchronous
 	def get(self):
-		global cache
+		global htlcache
 		global hltstops
 		fromhlt = ''
 		tohlt = ''
@@ -40,6 +40,29 @@ class HltHandler(tornado.web.RequestHandler):
 			self.write({'error':'from/to station not in network'})
 			self.finish()
 			return
+		
+		try:
+			price = htlcache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			outdata = {"travelerAge":35,	
+				"travelerIsStudent":False,
+				"sellername":"HLT",
+				"price":"",
+				"currency":"SEK",
+				"validPrice":True,
+				"url":"http://www.hlt.se/"}
+		
+			outdata['departureTime'] = self.get_argument('departureTime')
+			outdata['arrivalTime'] = self.get_argument('arrivalTime')
+			outdata['date'] = self.get_argument('date')
+			outdata['from'] = self.get_argument('from')
+			outdata['to'] = self.get_argument('to')
+			outdata['price'] = price['prices'][3]
+			outdata['validPrice'] = 1
+	
+			self.write(outdata)
+			self.finish()
+		except:
+			notfoundincache = 1	
 			
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		req = 'inpPointFr_ajax='+tornado.escape.url_escape(fromhlt)
@@ -78,6 +101,7 @@ class HltHandler(tornado.web.RequestHandler):
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
 
 	def searchdone(self, response):
+		global htlcache
 		html_data = response.body
 		try:
 			html_doc = BeautifulSoup(html_data)
@@ -106,6 +130,7 @@ class HltHandler(tornado.web.RequestHandler):
 				rownumb = row.split(']')[0].split('[')[1]
 				tripdata[rownumb] = {}
 				tripdata[rownumb]['prices'] = parts[1][1:-2].split('\',\'')
+				
 
 		for index in tripdata:
 			svar = html_doc.find(id="result-"+index)
@@ -115,29 +140,30 @@ class HltHandler(tornado.web.RequestHandler):
 			tripdata[index]['times']['arr'] = data[2].string
 			tripdata[index]['times']['dur'] = data[3].string
 			tripdata[index]['times']['changes'] = data[4].string
+			htlcache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+tripdata[index]['times']['dep']+tripdata[index]['times']['arr']] = tripdata[index]
 
-		for index in tripdata:
-			if tripdata[index]['times']['dep'] == self.get_argument('departureTime'):
-				outdata = {"travelerAge":35,	
+		try:
+			price = htlcache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
 				"sellername":"HLT",
 				"price":"",
 				"currency":"SEK",
 				"validPrice":True,
 				"url":"http://www.hlt.se/"}
-			
-				outdata['departureTime'] = self.get_argument('departureTime')
-				outdata['arrivalTime'] = self.get_argument('arrivalTime')
-				outdata['date'] = self.get_argument('date')
-				outdata['from'] = self.get_argument('from')
-				outdata['to'] = self.get_argument('to')
-				outdata['price'] = tripdata[index]['prices'][3]
-				outdata['validPrice'] = 1
+		
+			outdata['departureTime'] = self.get_argument('departureTime')
+			outdata['arrivalTime'] = self.get_argument('arrivalTime')
+			outdata['date'] = self.get_argument('date')
+			outdata['from'] = self.get_argument('from')
+			outdata['to'] = self.get_argument('to')
+			outdata['price'] = price['prices'][3]
+			outdata['validPrice'] = 1
 	
-				self.write(outdata)
-				self.finish()
-				return				
-		self.write({'error':'No trip found'})
-		self.finish()
+			self.write(outdata)
+			self.finish()		
+		except:		
+			self.write({'error':'No trip found'})
+			self.finish()
 
 		
