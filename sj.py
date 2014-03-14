@@ -157,6 +157,7 @@ class SjHandler(tornado.web.RequestHandler):
 					timefrom = trips[i]['departureTime']
 					timeto = trips[i]['arrivalTime']
 					cache[datefrom+stopfrom+timefrom+stopto+timeto] = trips[i]
+					cache[datefrom+stopfrom+timefrom+stopto+timeto][cadd] = time.time()
 					break
 		
 		try:

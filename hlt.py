@@ -66,6 +66,7 @@ class HltHandler(tornado.web.RequestHandler):
 	
 			self.write(outdata)
 			self.finish()
+			return
 		except:
 			notfoundincache = 1	
 			
@@ -166,7 +167,8 @@ class HltHandler(tornado.web.RequestHandler):
 			outdata['validPrice'] = 1
 	
 			self.write(outdata)
-			self.finish()		
+			self.finish()
+			return	
 		except:		
 			self.write({'error':'No trip found'})
 			self.finish()
