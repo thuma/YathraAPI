@@ -150,7 +150,7 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 					timeto = self.trips['JourneyAdvices'][i]['ArrivalDateTime'][11:16]
 					self.trips['JourneyAdvices'][i]['ArrivalDateTime']
 					snalltagetcache[datefrom+stopfrom+timefrom+stopto+timeto] = self.trips['JourneyAdvices'][i]
-					snalltagetcache[datefrom+stopfrom+timefrom+stopto+timeto] = time.time()
+					snalltagetcache[datefrom+stopfrom+timefrom+stopto+timeto]['ccad'] = time.time()
 					break
 		try:
 			self.returnrequest(snalltagetcache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
