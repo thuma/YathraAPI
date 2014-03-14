@@ -4,6 +4,7 @@
 import re
 import json
 import tornado.httpclient
+import time
 
 snalltagetstops = open('snalltaget.json')
 snalltagetstops = json.load(snalltagetstops)

@@ -4,6 +4,7 @@ import tornado.httpclient
 import tornado.httputil
 import tornado.escape
 import tornado.ioloop
+import time
 cache = {}
 
 stops = open('snalltaget.json')
