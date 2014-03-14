@@ -25,6 +25,11 @@ for row in list_data:
 	except:
 		parts = ''
 
+class CachePrint(tornado.web.RequestHandler):
+	def get(self):
+		global htlcache
+		self.write(cache)
+
 class HltHandler(tornado.web.RequestHandler):
 
 	@tornado.web.asynchronous
