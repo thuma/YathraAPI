@@ -28,7 +28,7 @@ for row in list_data:
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		global htlcache
-		self.write(cache)
+		self.write(htlcache)
 
 class HltHandler(tornado.web.RequestHandler):
 
