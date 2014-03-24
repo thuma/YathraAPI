@@ -53,8 +53,8 @@ class HltHandler(tornado.web.RequestHandler):
 				"sellername":"HLT",
 				"price":"",
 				"currency":"SEK",
-				"validPrice":True,
-				"url":"http://www.hlt.se/"}
+				"validPrice":True
+				}
 		
 			outdata['departureTime'] = self.get_argument('departureTime')
 			outdata['arrivalTime'] = self.get_argument('arrivalTime')
@@ -63,6 +63,7 @@ class HltHandler(tornado.web.RequestHandler):
 			outdata['to'] = self.get_argument('to')
 			outdata['price'] = price['prices'][3]
 			outdata['validPrice'] = 1
+			outdata['url'] = price['url']
 	
 			self.write(outdata)
 			self.finish()
@@ -102,6 +103,7 @@ class HltHandler(tornado.web.RequestHandler):
 		req +='&VerNo=7.1.1.2.0.38p3'
 		req +='&Source=querypage_adv'
 		req +='&MapParams='
+		self.url = 'http://thuma.github.io/gettopost.html#http://193.45.213.123/halland/v2/querypage_adv.aspx&&&'+req
 		self.myhttprequest = tornado.httpclient.HTTPRequest('http://193.45.213.123/halland/v2/querypage_adv.aspx', method='POST', headers=None, body=req) 
 
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
@@ -146,6 +148,7 @@ class HltHandler(tornado.web.RequestHandler):
 			tripdata[index]['times']['arr'] = data[2].string
 			tripdata[index]['times']['dur'] = data[3].string
 			tripdata[index]['times']['changes'] = data[4].string
+			tripdata[index]['url'] = self.url
 			htlcache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+tripdata[index]['times']['dep']+tripdata[index]['times']['arr']] = tripdata[index]
 
 		try:
@@ -155,8 +158,8 @@ class HltHandler(tornado.web.RequestHandler):
 				"sellername":"HLT",
 				"price":"",
 				"currency":"SEK",
-				"validPrice":True,
-				"url":"http://www.hlt.se/"}
+				"validPrice":True
+				}
 		
 			outdata['departureTime'] = self.get_argument('departureTime')
 			outdata['arrivalTime'] = self.get_argument('arrivalTime')
@@ -165,6 +168,7 @@ class HltHandler(tornado.web.RequestHandler):
 			outdata['to'] = self.get_argument('to')
 			outdata['price'] = price['prices'][3]
 			outdata['validPrice'] = 1
+			outdata['url'] = price['url']
 	
 			self.write(outdata)
 			self.finish()
