@@ -105,6 +105,7 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 
 	def gottrips(self, response):
 		self.trips = json.loads(response.body)
+		
 		try:
 			if len(self.trips['JourneyAdvices']) > 10:
 				maxint = 10
@@ -115,9 +116,20 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 			return
 			
 		pquery = {'TimetableId':self.trips['Id'], 'JourneyConnectionReferences':[]}
+		
+		exist = 0
+		for i in range(0, len(self.trips['JourneyAdvices'])):
+			if self.trips['JourneyAdvices'][i]['DepartureDateTime'][11:16] == self.gettime and self.trips['JourneyAdvices'][i]['ArrivalDateTime'][11:16] == self.gettotime:
+				exist = 1
+				
+			if exist == 1:
+				pquery['JourneyConnectionReferences'].append(self.trips['JourneyAdvices'][i]['JourneyConnectionReference'])
+				if len(pquery['JourneyConnectionReferences']) > 9:	
+					break
 
-		for i in range(0, maxint):
-			pquery['JourneyConnectionReferences'].append(self.trips['JourneyAdvices'][i]['JourneyConnectionReference'])
+		if exist == 0:
+			self.returnerror('Trip not found in search')
+			return None
 		
 
 		header_setup = tornado.httputil.HTTPHeaders({'Accept':'application/json, text/plain, */*',
