@@ -57,7 +57,7 @@ class SjHandler(tornado.web.RequestHandler):
 		self.trips={}
 
 		try:
-			self.searchdata = 'travelQuery.outDateTime='+self.get_argument('date') +'T'+ tornado.escape.url_escape(self.get_argument('departureTime')[:2]+':00')
+			self.searchdata = 'travelQuery.outDateTime='+self.get_argument('date') +'T'+ tornado.escape.url_escape(self.get_argument('departureTime'))
 			self.getdate = self.get_argument('date')
 			self.gettime = self.get_argument('departureTime')
 		except:
