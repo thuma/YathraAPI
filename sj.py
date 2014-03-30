@@ -126,12 +126,19 @@ class SjHandler(tornado.web.RequestHandler):
 			max = 10
 		else:
 			max = len(trips['data']['rows'])
-	
+
 		comma = ''
 		getpricedata = 'journeyIds='
+		exist = 0
 		for i in range(0, max):
 			getpricedata += tornado.escape.url_escape(comma + trips['data']['rows'][i]['id'])
 			comma = ','
+			if trips['data']['rows'][i]['departureTime'] == self.gettime and trips['data']['rows'][i]['arrivalTime'] == self.gettotime:
+				exist = 1
+		
+		if exist == 0:
+			self.returnerror('Trip not found in search')
+			return None
 		
 		header_setup = tornado.httputil.HTTPHeaders({"Cookie": self.cookie,'Content-Type':'application/x-www-form-urlencoded'})
 		request_setup = tornado.httpclient.HTTPRequest("https://mobil.sj.se/api/timetable/prices/bestforids", method='POST', headers=header_setup, body=getpricedata, follow_redirects=True, max_redirects=3)
@@ -140,8 +147,14 @@ class SjHandler(tornado.web.RequestHandler):
 	
 	def gotprices (self, request):
 		global cache
-		
-		price =  tornado.escape.json_decode(request.body)
+
+
+		try:
+			price =  tornado.escape.json_decode(request.body)
+		except:
+			self.returnerror('No trip price date receaved')
+			return None
+			
 		price = price['data']
 		trips = self.trips['data']['rows']
 
