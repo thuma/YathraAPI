@@ -16,13 +16,16 @@ snalltagetstops = {}
 
 snalltagetcache = {}
 
+def remove_key(key):
+    del snalltagetcache[key]
+
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		global snalltagetcache
 		self.write(snalltagetcache)
 
 
-class SnalltagetHandler(tornado.web.RequestHandler):
+class Handler(tornado.web.RequestHandler):
 	
 	@tornado.web.asynchronous
 	def get(self):
@@ -161,9 +164,10 @@ class SnalltagetHandler(tornado.web.RequestHandler):
 					timefrom = self.trips['JourneyAdvices'][i]['DepartureDateTime'][11:16]
 					timeto = self.trips['JourneyAdvices'][i]['ArrivalDateTime'][11:16]
 					self.trips['JourneyAdvices'][i]['ArrivalDateTime']
-					snalltagetcache[datefrom+stopfrom+timefrom+stopto+timeto] = self.trips['JourneyAdvices'][i]
-					snalltagetcache[datefrom+stopfrom+timefrom+stopto+timeto]['ccad'] = time.time()
-					break
+                                        cachekey = datefrom+stopfrom+timefrom+stopto+timeto
+                                        snalltagetcache[cachekey] = self.trips['JourneyAdvices'][i]
+                                        tornado.ioloop.IOLoop.instance().add_timeout(time.time()+3600*8, partial(remove_key,cachekey))
+                                        break
 		try:
 			self.returnrequest(snalltagetcache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
 			return

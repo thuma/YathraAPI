@@ -5,6 +5,8 @@ import tornado.httputil
 import tornado.escape
 import tornado.ioloop
 import time
+from functools import partial
+
 cache = {}
 
 stops = open('snalltaget.json')
@@ -14,12 +16,16 @@ for stop in stops['stops']:
 	stopsa[str(stop['P']*100000+stop['L'])] = stop['N']
 stops = {}
 
+
+def remove_key(key):
+    del cache[key]
+
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		global cache
 		self.write(cache)
 
-class SjHandler(tornado.web.RequestHandler):
+class Handler(tornado.web.RequestHandler):
 	cookie = ''
 	
 	def returnrequest(self, data):
@@ -39,8 +45,13 @@ class SjHandler(tornado.web.RequestHandler):
 		outdata['price'] = int(data['pricedata']['price'][:-2])
 		outdata['validPrice'] = data['pricedata']['validPrice']
 		outdata['soldOut'] = data['pricedata']['soldOut']
-		outdata['url'] = 'http://www.sj.se/microsite/microsite/submit.form?f='+data['departureDate'].replace('-','')+'&G=false&F='+data['departureTime'][0:2]+'00&header.type=TRAVEL&3A=false&c='+data['arrivalLocation'][-5:]+'%3A0'+data['arrivalLocation'][0:2]+'&B='+data['departureLocation'][-5:]+'%3A0'+data['departureLocation'][0:2]+'&header.key=K253891809275136476&l=sv'
-		
+		outdata['url'] = 'http://www.sj.se/microsite/microsite/submit.form?f='\
+                        +data['departureDate'].replace('-','')+\
+                        '&G=false&F='+data['departureTime'][0:2]+\
+                        '00&header.type=TRAVEL&3A=false&c='+data['arrivalLocation'][-5:]+\
+                        '%3A0'+data['arrivalLocation'][0:2]+'&B='+data['departureLocation'][-5:]+'%3A0'+\
+                        data['departureLocation'][0:2]+'&header.key=K253891809275136476&l=sv'
+
 		self.returndata(outdata)
 	
 	def returnerror(self, data):
@@ -170,8 +181,9 @@ class SjHandler(tornado.web.RequestHandler):
 					datefrom = self.getdate
 					timefrom = trips[i]['departureTime']
 					timeto = trips[i]['arrivalTime']
-					cache[datefrom+stopfrom+timefrom+stopto+timeto] = trips[i]
-					cache[datefrom+stopfrom+timefrom+stopto+timeto]['cadd'] = time.time()
+                                        cachekey = datefrom+stopfrom+timefrom+stopto+timeto
+					cache[cachekey] = trips[i]
+                                        tornado.ioloop.IOLoop.instance().add_timeout(time.time()+3600*8, partial(remove_key,cachekey))
 					break
 		
 		try:

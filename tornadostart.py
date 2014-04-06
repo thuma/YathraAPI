@@ -12,11 +12,11 @@ settings = {
 }
 
 application = tornado.web.Application([
-    (r"/sj/", sj.SjHandler),
+    (r"/sj/", sj.Handler),
     (r"/sj/cache/", sj.CachePrint),
     (r"/hlt/", hlt.HltHandler),
     (r"/hlt/cache/", hlt.CachePrint),
-    (r"/snalltaget/", snalltaget.SnalltagetHandler),
+    (r"/snalltaget/", snalltaget.Handler),
     (r"/snalltaget/cache/", snalltaget.CachePrint),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
