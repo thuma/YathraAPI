@@ -4,7 +4,9 @@
 import re
 import json
 import tornado.httpclient
+import tornado.ioloop
 import time
+from functools import partial
 
 snalltagetstops = open('snalltaget.json')
 snalltagetstops = json.load(snalltagetstops)
