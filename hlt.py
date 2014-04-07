@@ -30,7 +30,7 @@ class CachePrint(tornado.web.RequestHandler):
 		global htlcache
 		self.write(htlcache)
 
-class HltHandler(tornado.web.RequestHandler):
+class Handler(tornado.web.RequestHandler):
 
 	@tornado.web.asynchronous
 	def get(self):

@@ -155,7 +155,7 @@ class Handler(tornado.web.RequestHandler):
 			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
 			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
-				"sellername":"HLT",
+				"sellername":"JLT",
 				"price":"",
 				"currency":"SEK",
 				"validPrice":True
