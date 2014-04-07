@@ -36,11 +36,11 @@ class Handler(tornado.web.RequestHandler):
 	def get(self):
 		global cache
 		global stops
-		fromhlt = ''
-		tohlt = ''
+		fromstring = ''
+		tostring = ''
 		try:
-			fromhlt = stops[self.get_argument('from')]['name']+'|'+stops[self.get_argument('from')]['id']+'|0'
-			tohlt = stops[self.get_argument('to')]['name']+'|'+stops[self.get_argument('to')]['id']+'|0'
+			fromstring = stops[self.get_argument('from')]['name']+'|'+stops[self.get_argument('from')]['id']+'|0'
+			tostring = stops[self.get_argument('to')]['name']+'|'+stops[self.get_argument('to')]['id']+'|0'
 		except:
 			self.write({'error':'from/to station not in network'})
 			self.finish()
@@ -72,8 +72,8 @@ class Handler(tornado.web.RequestHandler):
 			notfoundincache = 1	
 			
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
-		req = 'inpPointFr_ajax='+tornado.escape.url_escape(fromhlt)
-		req +='&inpPointTo_ajax='+tornado.escape.url_escape(tohlt)
+		req = 'inpPointFr_ajax='+tornado.escape.url_escape(fromstring)
+		req +='&inpPointTo_ajax='+tornado.escape.url_escape(tostring)
 		req +='&inpPointInterm_ajax='
 		req +='&selRegionFr=741'
 		req +='&inpPointFr=%C5s+Gamla+K%F6pstad++%5BH%E5llplats%5D'
@@ -97,14 +97,14 @@ class Handler(tornado.web.RequestHandler):
 		req +='&selPriority=0'
 		req +='&cmdAction=search'
 		req +='&EU_Spirit=False'
-		req +='&TNSource=HALLAND'
+		req +='&TNSource=JLT'
 		req +='&SupportsScript=True'
 		req +='&Language=se'
 		req +='&VerNo=7.1.1.2.0.38p3'
 		req +='&Source=querypage_adv'
 		req +='&MapParams='
-		self.url = 'http://thuma.github.io/gettopost.html#http://193.45.213.123/halland/v2/querypage_adv.aspx&&&'+req
-		self.myhttprequest = tornado.httpclient.HTTPRequest('http://193.45.213.123/halland/v2/querypage_adv.aspx', method='POST', headers=None, body=req) 
+		self.url = 'http://thuma.github.io/gettopost.html#http://193.45.213.123/jonkoping/querypage_adv.aspx&&&'+req
+		self.myhttprequest = tornado.httpclient.HTTPRequest('http://193.45.213.123/jonkoping/querypage_adv.aspx', method='POST', headers=None, body=req) 
 
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
 
