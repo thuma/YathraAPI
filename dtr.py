@@ -166,7 +166,7 @@ class Handler(tornado.web.RequestHandler):
 			outdata['date'] = self.get_argument('date')
 			outdata['from'] = self.get_argument('from')
 			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['prices'][3]
+			outdata['price'] = price['prices'][6]
 			outdata['validPrice'] = 1
 			outdata['url'] = price['url']
 	
