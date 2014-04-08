@@ -152,6 +152,7 @@ class Handler(tornado.web.RequestHandler):
 		self.http_client.fetch(request_setup, self.gotprices)
 
 	def gotprices(self, response):
+		global snalltagetcache
 		price = json.loads(response.body)
 
 		for i in range(0, len(self.trips['JourneyAdvices'])):

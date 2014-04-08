@@ -81,7 +81,7 @@ class Handler(tornado.web.RequestHandler):
 			outdata['to'] = self.get_argument('to')
 			outdata['price'] = righttrip['total_price'][:-3]
 			outdata['validPrice'] = True
-			outdata['url'] = 'http://www.masexpressen.se'
+			outdata['url'] = 'http://thuma.github.io/gettopost.html#http://masexpressen.se/&&&from='+stops[self.get_argument('from')]+'&to='+stops[self.get_argument('date')]+'&date_outbound='+self.get_argument('date')+'&date_return='+self.get_argument('date')+'&type_15=1&type_16=0&type_20=0&type_17=0&type_18=0&btn_continue=S%F6k+avg%E5ngar'
 
 			self.write(outdata)
 			self.finish()
