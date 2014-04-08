@@ -23,6 +23,8 @@ for row in list_data:
 	except:
 		parts = ''
 
+print stops
+
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		global cache
@@ -32,6 +34,7 @@ class Handler(tornado.web.RequestHandler):
 
 	@tornado.web.asynchronous
 	def get(self):
+		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		global cache
 		global stops
 		fromid = ''
@@ -49,10 +52,10 @@ class Handler(tornado.web.RequestHandler):
 
 	def searchdone(self, response):
 		global cache
-		trips = json_loads(response.body)
+		trips = json.loads(response.body)
 
 		try:
-			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			'''price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
 			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
 				"sellername":"Masexpressen",
@@ -69,8 +72,9 @@ class Handler(tornado.web.RequestHandler):
 			outdata['price'] = price['prices'][3]
 			outdata['validPrice'] = 1
 			outdata['url'] = price['url']
+			'''
 	
-			self.write(outdata)
+			self.write(trips)
 			self.finish()
 			return	
 		except:		
