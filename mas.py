@@ -50,6 +50,7 @@ class Handler(tornado.web.RequestHandler):
 
 	def searchdone(self, response):
 		global cache
+		global stops
 		
 		try:	
 			trips = json.loads(response.body)
