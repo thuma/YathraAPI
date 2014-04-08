@@ -23,8 +23,6 @@ for row in list_data:
 	except:
 		parts = ''
 
-print stops
-
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		global cache
@@ -46,8 +44,8 @@ class Handler(tornado.web.RequestHandler):
 			self.write({'error':'from/to station not in network'})
 			self.finish()
 			return
-	
-		self.myhttprequest = tornado.httpclient.HTTPRequest('http://masexpressen.se/ajax/get_travel_plans?date_outbound='+self.get_argument('date')+'&date_return='+self.get_argument('date')+'&from_stop_id='+fromid+'&to_stop_id='+fromid+'&travellers%5B15%5D=1', method='GET') 
+
+		self.myhttprequest = tornado.httpclient.HTTPRequest('http://masexpressen.se/ajax/get_travel_plans?date_outbound='+self.get_argument('date')+'&date_return='+self.get_argument('date')+'&from_stop_id='+fromid+'&to_stop_id='+toid+'&travellers%5B15%5D=1', method='GET') 
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
 
 	def searchdone(self, response):
