@@ -50,10 +50,22 @@ class Handler(tornado.web.RequestHandler):
 
 	def searchdone(self, response):
 		global cache
-		trips = json.loads(response.body)
+		
+		try:	
+			trips = json.loads(response.body)
+		except:
+			self.write({'error':'Error contacting MASexpress server'})
+			self.finish()
+			return
 
 		try:
-			'''price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			trips = trips['message']['plans']['outbound']
+			for date in trips:
+				for trip in trips[date]:
+					cache[date+self.get_argument('from')+self.get_argument('to')+trip['entry_time']+trip['exit_time']] = trip
+			
+			righttrip = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]				
+
 			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
 				"sellername":"Masexpressen",
@@ -67,14 +79,13 @@ class Handler(tornado.web.RequestHandler):
 			outdata['date'] = self.get_argument('date')
 			outdata['from'] = self.get_argument('from')
 			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['prices'][3]
-			outdata['validPrice'] = 1
-			outdata['url'] = price['url']
-			'''
-	
-			self.write(trips['message']['plans']['outbound'])
+			outdata['price'] = righttrip['total_price'][:-3]
+			outdata['validPrice'] = True
+			outdata['url'] = 'http://www.masexpressen.se'
+
+			self.write(outdata)
 			self.finish()
-			return	
+			return
 		except:		
 			self.write({'error':'No trip found'})
 			self.finish()

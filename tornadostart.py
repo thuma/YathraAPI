@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import tornado.web
+print 'Loading id lists...'
 import hlt
 import jlt
 import klt
@@ -9,6 +10,7 @@ import ltk
 import btr
 import dtr
 import xtr
+import mas
 import snalltaget
 import sj
 import os
@@ -32,6 +34,8 @@ application = tornado.web.Application([
     (r"/btr/cache/", btr.CachePrint),
     (r"/dtr/", dtr.Handler),
     (r"/dtr/cache/", dtr.CachePrint),
+    (r"/mas/", mas.Handler),
+    (r"/mas/cache/", mas.CachePrint),
     (r"/xtr/", xtr.Handler),
     (r"/xtr/cache/", xtr.CachePrint),    
     (r"/snalltaget/", snalltaget.Handler),
@@ -39,6 +43,7 @@ application = tornado.web.Application([
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
 
+print 'Server started...'
 application.listen(8800)
 tornado.ioloop.IOLoop.instance().start()
  
