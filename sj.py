@@ -45,7 +45,7 @@ class Handler(tornado.web.RequestHandler):
 		outdata['price'] = int(data['pricedata']['price'][:-2])
 		outdata['validPrice'] = data['pricedata']['validPrice']
 		outdata['soldOut'] = data['pricedata']['soldOut']
-		outdata['url'] = 'http://www.sj.se/' #'http://thuma.github.io/gettopost.html#http://www.sj.se/travel/booksearchlocation.form?mode=contract&l=sv&&&method=next&startPage=true&mode=teaser&travelQuery.departureLocationName='+self.fromname+'&travelQuery.arrivalLocationName='+self.toname+'&travelQuery.outDateTime='+self.getdate+'%20'+tornado.escape.url_escape(self.gettime)+'%3A00&travelQuery.outTimeDeparture=true&travelQuery.returnDateTime=&travelQuery.returnTimeDeparture=false&travelQuery.includeX2000=on&travelQuery.includeBuses=on&travelQuery.viaLocationName=&travelQuery.minimumChangeTime=0&travelQuery.campaignCode=&null=null&null=********'
+		outdata['url'] = 'http://thuma.github.io/gettopost.html#https://www.sj.se/travel/booksearchlocation.form?mode=contract&l=sv&&&method=next&startPage=true&mode=teaser&travelQuery.departureLocationName='+self.fromname+'&travelQuery.arrivalLocationName='+self.toname+'&travelQuery.outDateTime='+self.getdate+'%20'+tornado.escape.url_escape(self.gettime)+'%3A00&travelQuery.outTimeDeparture=true&travelQuery.returnDateTime=&travelQuery.returnTimeDeparture=false&travelQuery.includeX2000=on&travelQuery.includeBuses=on&travelQuery.viaLocationName=&travelQuery.minimumChangeTime=0&travelQuery.campaignCode=&null=null&null=********'
 
 		self.returndata(outdata)
 	
