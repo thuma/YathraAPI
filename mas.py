@@ -72,7 +72,7 @@ class Handler(tornado.web.RequestHandler):
 			outdata['url'] = price['url']
 			'''
 	
-			self.write(trips)
+			self.write(trips['message']['plans']['outbound'])
 			self.finish()
 			return	
 		except:		
