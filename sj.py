@@ -18,6 +18,7 @@ stops = {}
 
 
 def remove_key(key):
+    global cache
     del cache[key]
 
 class CachePrint(tornado.web.RequestHandler):
