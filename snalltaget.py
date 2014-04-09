@@ -19,6 +19,7 @@ snalltagetstops = {}
 snalltagetcache = {}
 
 def remove_key(key):
+    global snalltagetcache
     del snalltagetcache[key]
 
 class CachePrint(tornado.web.RequestHandler):
