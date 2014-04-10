@@ -110,7 +110,14 @@ class Handler(tornado.web.RequestHandler):
 		self.http_client.fetch(request_setup, self.gottrips)
 
 	def gottrips(self, response):
-		self.trips = json.loads(response.body)
+		
+		try:
+			self.trips = json.loads(response.body)
+		except:
+			self.write({'error':'no data in response from Snalltaget, timetable'})
+			self.finish()
+			return
+		
 		
 		try:
 			if len(self.trips['JourneyAdvices']) > 10:
@@ -154,7 +161,12 @@ class Handler(tornado.web.RequestHandler):
 
 	def gotprices(self, response):
 		global snalltagetcache
-		price = json.loads(response.body)
+		try:
+			price = json.loads(response.body)
+		except:
+			self.write({'error':'no data in response from Snalltaget, price'})
+			self.finish()
+			return
 
 		for i in range(0, len(self.trips['JourneyAdvices'])):
 			for j in range (0,len(price)):
