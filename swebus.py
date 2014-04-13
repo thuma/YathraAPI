@@ -25,9 +25,178 @@ for row in list_data:
 	except:
 		parts = ''
 
+class CachePrint(tornado.web.RequestHandler):
+	def get(self):
+		global cache
+		self.write(cache)
 
-print stops
+class Handler(tornado.web.RequestHandler):
+	@tornado.web.asynchronous
+	def get(self):
+		global cache
+		global stops
+		
+		try:
+			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			outdata = {"travelerAge":35,	
+				"travelerIsStudent":False,
+				"sellername":"Swebuss",
+				"price":"",
+				"currency":"SEK",
+				"validPrice":True
+				}
+		
+			outdata['departureTime'] = self.get_argument('departureTime')
+			outdata['arrivalTime'] = self.get_argument('arrivalTime')
+			outdata['date'] = self.get_argument('date')
+			outdata['from'] = self.get_argument('from')
+			outdata['to'] = self.get_argument('to')
+			outdata['price'] = price['Price1']
+			outdata['validPrice'] = 1
+			#outdata['url'] = price['url']
+	
+			self.write(outdata)
+			self.finish()
+			return
+		except:
+			notfoundincache = 1	
+		
+		
+		self.http_client = tornado.httpclient.AsyncHTTPClient()
+		try:
+			self.url = 'http://www.swebus.se/Express/Sokresultat/\
+?from='+stops[self.get_argument('from')]['id']+'\
+&fromtype=BusStop\
+&to='+stops[self.get_argument('to')]['id']+'\
+&totype=BusStop\
+&away='+self.get_argument('date')+'\
+&Adult=1\
+&Child=0\
+&Youth=0\
+&Student=0\
+&Pensioner=0\
+&Pet=0\
+&campaignCode=\
+&id=1101\
+&epslanguage=sv-SE'
+			self.myhttprequest = tornado.httpclient.HTTPRequest(self.url) 
+			self.http_client.fetch(self.myhttprequest, self.searchdone)
+		except:
+			self.write({'error':'from/to station not in network'})
+			self.finish()
+			return
+		
+	def searchdone(self, response):
+		global cache
+		html_data = response.body
+		try:
+			html_data = BeautifulSoup(html_data)
+		except:
+			#self.http_client.fetch(self.myhttprequest, self.searchdone)
+			#return
+			end = 1
+		lista = html_data.find(id='bookingSearchResultsAway').findAll("div", { "class" : "Accordion" })
+		lista = lista[0].findAll("table") 
 
+		for i in lista:
+                        data = {}
+                        data['Departure'] = i.findAll("th", { "class" : "Departure" })[0].string.strip()
+                        data['Arrival'] = i.findAll("th", { "class" : "Arrival" })[0].string.strip()
+                        data['Price1'] = i.findAll("th", { "class" : "Price1" })[0].findAll("input")[0]['value']
+                        data['Price2'] = i.findAll("th", { "class" : "Price2" })[0].findAll("input")[0]['value']
+                        data['Price3'] = i.findAll("th", { "class" : "Price3" })[0].findAll("input")[0]['value']
+
+                        cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+data['Departure']+data['Arrival']] = data
+                
+                try:
+			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			outdata = {"travelerAge":35,	
+				"travelerIsStudent":False,
+				"sellername":"Swebuss",
+				"price":"",
+				"currency":"SEK",
+				"validPrice":True
+				}
+		
+			outdata['departureTime'] = self.get_argument('departureTime')
+			outdata['arrivalTime'] = self.get_argument('arrivalTime')
+			outdata['date'] = self.get_argument('date')
+			outdata['from'] = self.get_argument('from')
+			outdata['to'] = self.get_argument('to')
+			outdata['price'] = price['Price1']
+			outdata['validPrice'] = 1
+			#outdata['url'] = price['url']
+	
+			self.write(outdata)
+			self.finish()
+			return
+		except:
+			notfoundincache = 1	
+                        
+                self.write('{"Error":"No trip found"}')
+                self.finish()
+		'''
+		scripts = html_doc.find_all('script')
+
+		for script in scripts:
+			rad = script.string
+			try:
+				rad = rad.strip()
+			except:
+				rad = "nodatainstring"
+			if rad[:8] == 'dValidFr':
+				done = rad
+
+		rawprice = done.split('\n')
+		tripdata = {}
+
+		for row in rawprice:
+			row = row.strip()
+			if row[:9] == 'priceArr[':
+				parts = row.split('(')
+				rownumb = row.split(']')[0].split('[')[1]
+				tripdata[rownumb] = {}
+				tripdata[rownumb]['prices'] = parts[1][1:-2].split('\',\'')
+				
+
+		for index in tripdata:
+			svar = html_doc.find(id="result-"+index)
+			data = svar.find_all('td')
+			tripdata[index]['times'] = {}
+			tripdata[index]['times']['dep'] = data[1].string
+			tripdata[index]['times']['arr'] = data[2].string
+			tripdata[index]['times']['dur'] = data[3].string
+			tripdata[index]['times']['changes'] = data[4].string
+			tripdata[index]['url'] = self.url
+			htlcache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+tripdata[index]['times']['dep']+tripdata[index]['times']['arr']] = tripdata[index]
+
+		try:
+			price = htlcache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			outdata = {"travelerAge":35,	
+				"travelerIsStudent":False,
+				"sellername":"HLT",
+				"price":"",
+				"currency":"SEK",
+				"validPrice":True
+				}
+		
+			outdata['departureTime'] = self.get_argument('departureTime')
+			outdata['arrivalTime'] = self.get_argument('arrivalTime')
+			outdata['date'] = self.get_argument('date')
+			outdata['from'] = self.get_argument('from')
+			outdata['to'] = self.get_argument('to')
+			outdata['price'] = price['prices'][3]
+			outdata['validPrice'] = 1
+			outdata['url'] = price['url']
+	
+			self.write(outdata)
+			self.finish()
+			return	
+		except:		
+			self.write({'error':'No trip found'})
+			self.finish()
+		'''
+		
 
 
 '''
