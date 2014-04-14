@@ -1,0 +1,16 @@
+request -> check serach cache	-> yes: add callback / dispatch Callback (if price)
+				-> no:  add search -> dispatch search
+
+search done -> store results 0->10 -> check if in search cache ->	Yes: Kill signal to serarching listeners.
+									No/Yes: Store data in cache. -> dispatch price request
+
+price found -> store and dispatch callbacks
+
+Callbacks -> write finish 
+
+cache.getdata('Query')
+cache.addcallback('Query',self)
+
+request.killme('')
+request.price('')
+
