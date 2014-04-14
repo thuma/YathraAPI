@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import tornado.httpclient
+import time
 from bs4 import BeautifulSoup
 
 
@@ -59,7 +60,13 @@ class Handler(tornado.web.RequestHandler):
 			self.finish()
 			return
 		except:
-			notfoundincache = 1	
+			try:
+				tid = cache[self.get_argument('date')]
+				self.write('{"error":"No trip found"}')
+				self.finish()
+				return
+			except: 			
+				notfoundincache = 1	
 		
 		
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
@@ -108,7 +115,7 @@ class Handler(tornado.web.RequestHandler):
                         data['Price3'] = i.findAll("th", { "class" : "Price3" })[0].findAll("input")[0]['value']
 
                         cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+data['Departure']+data['Arrival']] = data
-                
+                	cache[self.get_argument('date')] = time.time()
                 try:
 			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
 			outdata = {"travelerAge":35,	
