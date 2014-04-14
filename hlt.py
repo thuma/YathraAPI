@@ -9,7 +9,7 @@ http_client = tornado.httpclient.HTTPClient()
 try:
     response = http_client.fetch('https://github.com/thuma/TSC-Tables/raw/master/hallandstrafiken-gtfs.csv')
     list_data = response.body
-except httpclient.HTTPError as e:
+except tornado.httpclient.HTTPError as e:
     print "Error:", e
 http_client.close()
 htlcache = {}
