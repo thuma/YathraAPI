@@ -54,16 +54,16 @@ class Handler(tornado.web.RequestHandler):
 			outdata['date'] = self.get_argument('date')
 			outdata['from'] = self.get_argument('from')
 			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['Pris']
+			outdata['price'] = price['Pris'][:-4]
 			outdata['validPrice'] = 1
-			outdata['url'] = price['url']
+			outdata['url'] = pricea['url']
 	
 			self.write(outdata)
 			self.finish()
 			return
 		except:
 			try:
-				tid = cache[self.get_argument('date')]
+				tid = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
 				self.write('{"error":"No trip found"}')
 				self.finish()
 				return
@@ -114,3 +114,5 @@ class Handler(tornado.web.RequestHandler):
 
 		self.get()
 		return
+
+	
