@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 
 http_client = tornado.httpclient.HTTPClient()
 try:
-    response = http_client.fetch('https://github.com/thuma/Transit-Stop-Identifier-Conversions-Sweden/blob/master/nettbuss-gtfs.csv')
+    response = http_client.fetch('https://raw.githubusercontent.com/thuma/Transit-Stop-Identifier-Conversions-Sweden/master/nettbuss-gtfs.csv')
     list_data = response.body
 except httpclient.HTTPError as e:
     print "Error:", e
@@ -21,10 +21,12 @@ for row in list_data:
 	try:
 		parts = row.split(',')
 		stops[parts[0]] = {}
-		stops[parts[0]]['id'] = parts[2]
-		stops[parts[0]]['name'] = parts[3]
+		stops[parts[0]]['id'] = parts[1]
+		stops[parts[0]]['name'] = parts[5]
 	except:
 		parts = ''
+
+print stops
 
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
@@ -91,7 +93,7 @@ class Handler(tornado.web.RequestHandler):
 
 		lista = html_data.find(id='departuresLoaderId')
 		
-		self.write(lista)
+		self.write(lista.prettify())
 		self.finish()
 		return
 		'''
