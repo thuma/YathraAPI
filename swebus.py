@@ -38,10 +38,11 @@ class Handler(tornado.web.RequestHandler):
 		global stops
 		
 		try:
-			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			pricea = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
+			price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
 			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
-				"sellername":"Swebuss",
+				"sellername":"Swebus",
 				"price":"",
 				"currency":"SEK",
 				"validPrice":True
@@ -54,14 +55,14 @@ class Handler(tornado.web.RequestHandler):
 			outdata['to'] = self.get_argument('to')
 			outdata['price'] = price['Price1']
 			outdata['validPrice'] = 1
-			outdata['url'] = price['url']
+			outdata['url'] = pricea['url']
 	
 			self.write(outdata)
 			self.finish()
 			return
 		except:
 			try:
-				tid = cache[self.get_argument('date')]
+				test = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
 				self.write('{"error":"No trip found"}')
 				self.finish()
 				return
@@ -104,23 +105,29 @@ class Handler(tornado.web.RequestHandler):
 			end = 1
 		lista = html_data.find(id='bookingSearchResultsAway').findAll("div", { "class" : "Accordion" })
 		lista = lista[0].findAll("table") 
-
+		
+		mainkey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
+		cache[mainkey] = {}
+		cache[mainkey]['url'] = self.url
 		for i in lista:
+                    try:
                         data = {}
-			data['url'] = self.url
                         data['Departure'] = i.findAll("th", { "class" : "Departure" })[0].string.strip()
                         data['Arrival'] = i.findAll("th", { "class" : "Arrival" })[0].string.strip()
                         data['Price1'] = i.findAll("th", { "class" : "Price1" })[0].findAll("input")[0]['value']
                         data['Price2'] = i.findAll("th", { "class" : "Price2" })[0].findAll("input")[0]['value']
                         data['Price3'] = i.findAll("th", { "class" : "Price3" })[0].findAll("input")[0]['value']
 
-                        cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+data['Departure']+data['Arrival']] = data
-                	cache[self.get_argument('date')] = time.time()
+                        cache[mainkey][data['Departure']+data['Arrival']] = data
+                    except:
+                        soldoutrow = 1
+            	
                 try:
-			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			pricea = cache[mainkey]
+			price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
 			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
-				"sellername":"Swebuss",
+				"sellername":"Swebus",
 				"price":"",
 				"currency":"SEK",
 				"validPrice":True
@@ -133,7 +140,7 @@ class Handler(tornado.web.RequestHandler):
 			outdata['to'] = self.get_argument('to')
 			outdata['price'] = price['Price1']
 			outdata['validPrice'] = 1
-			outdata['url'] = price['url']
+			outdata['url'] = pricea['url']
 	
 			self.write(outdata)
 			self.finish()
