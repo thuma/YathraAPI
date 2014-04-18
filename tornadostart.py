@@ -15,6 +15,7 @@ import snalltaget
 import sj
 import swebus
 import nettbuss
+import bt
 import os
 
 settings = {
@@ -22,6 +23,8 @@ settings = {
 }
 
 application = tornado.web.Application([
+    (r"/bt/", bt.Handler),
+    (r"/bt/cache/", bt.CachePrint),
     (r"/sj/", sj.Handler),
     (r"/sj/cache/", sj.CachePrint),
     (r"/hlt/", hlt.Handler),

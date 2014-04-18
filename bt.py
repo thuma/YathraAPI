@@ -49,8 +49,7 @@ class Handler(tornado.web.RequestHandler):
 			return
 		
 		try:
-			self.write(cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')])
-			self.finish()
+			self.cachesend()
 			return		
 		except:
 			notincache = 1
@@ -73,81 +72,70 @@ class Handler(tornado.web.RequestHandler):
 				dep = resdelar[0]
 				arr = resdelar[1]
 				trip = {}
-				trip['1stkl'] = resdelar[2].split('_')[1]
-				trip['2ndkl'] = resdelar[3].split('_')[1] 
+				trip['1stkl'] = resdelar[2].split('_')[1].replace(':',"").replace('-','')
+				trip['2ndkl'] = resdelar[3].split('_')[1].replace(':',"").replace('-','')
 				cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')][dep+arr] = trip
 				 										
 		except:
 			notok = 1
 		
-		self.write(cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')])
-		self.finish()
-
-		
-		'''
 		try:
-			html_doc = BeautifulSoup(html_data)
+			self.cachesend()
 		except:
-			self.http_client.fetch(self.myhttprequest, self.searchdone)
+			self.write({'error':'no data for that trip'})
+			self.finish()
 			return
-
-		scripts = html_doc.find_all('script')
-
-		for script in scripts:
-			rad = script.string
-			try:
-				rad = rad.strip()
-			except:
-				rad = "nodatainstring"
-			if rad[:8] == 'dValidFr':
-				done = rad
-
-		rawprice = done.split('\n')
-		tripdata = {}
-
-		for row in rawprice:
-			row = row.strip()
-			if row[:9] == 'priceArr[':
-				parts = row.split('(')
-				rownumb = row.split(']')[0].split('[')[1]
-				tripdata[rownumb] = {}
-				tripdata[rownumb]['prices'] = parts[1][1:-2].split('\',\'')
-				
-
-		for index in tripdata:
-			svar = html_doc.find(id="result-"+index)
-			data = svar.find_all('td')
-			tripdata[index]['times'] = {}
-			tripdata[index]['times']['dep'] = data[1].string
-			tripdata[index]['times']['arr'] = data[2].string
-			tripdata[index]['times']['dur'] = data[3].string
-			tripdata[index]['times']['changes'] = data[4].string
-			tripdata[index]['url'] = self.url
-			cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+tripdata[index]['times']['dep']+tripdata[index]['times']['arr']] = tripdata[index]
-
-		try:
-			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
-			outdata = {"travelerAge":35,	
+		
+		
+		
+		
+	def cachesend(self):
+		global cache
+		outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
-				"sellername":"BTR",
+				"sellername":"BlåTåget",
 				"price":"",
 				"currency":"SEK",
-				"validPrice":True
+				"validPrice":True,
+				"url":"http://www.blataget.com"
 				}
 		
-			outdata['departureTime'] = self.get_argument('departureTime')
-			outdata['arrivalTime'] = self.get_argument('arrivalTime')
-			outdata['date'] = self.get_argument('date')
-			outdata['from'] = self.get_argument('from')
-			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['prices'][3]
-			outdata['validPrice'] = 1
-			outdata['url'] = price['url']
-	
-			self.write(outdata)
+		outdata['departureTime'] = self.get_argument('departureTime')
+		outdata['arrivalTime'] = self.get_argument('arrivalTime')
+		outdata['date'] = self.get_argument('date')
+		outdata['from'] = self.get_argument('from')
+		outdata['to'] = self.get_argument('to')
+		outdata['validPrice'] = 1
+		
+		trip = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')][self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+		
+		try:
+			stkl = int(trip['1stkl'])
+		except:
+			stkl = 99999
+		
+		try:
+			ndkl = int(trip['2ndkl'])
+		except:
+			ndkl = 99999
+			
+		if stkl < ndkl:
+			outdata['price'] = stkl
+		else:
+			outdata['price'] = ndkl
+		
+		if outdata['price'] == 99999:
+			self.write({'Error':'Sould out'})
 			self.finish()
-			return	
-		except:		
-			self.write({'error':'No trip found'})
-			self.finish() '''
+			return
+			
+		self.write(outdata)
+		self.finish()
+
+ 		
+		
+		
+
+
+
 
