@@ -16,6 +16,7 @@ import sj
 import swebus
 import nettbuss
 import bt
+import sktr
 import os
 
 settings = {
@@ -49,6 +50,8 @@ application = tornado.web.Application([
     (r"/snalltaget/cache/", snalltaget.CachePrint),
     (r"/nettbuss/", nettbuss.Handler),
     (r"/nettbuss/cache/", nettbuss.CachePrint),
+    (r"/sktr/", sktr.Handler),
+    (r"/sktr/cache/", sktr.CachePrint),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
 
