@@ -75,8 +75,11 @@ class Handler(tornado.web.RequestHandler):
 		http_client = tornado.httpclient.HTTPClient()
 		alldata = xmltodict.parse(response.body)
 		alldata = alldata['soap:Envelope']['soap:Body']
+		
+		for trip in alldata['GetJourneyResponse']['GetJourneyResult']['Journeys']['Journey']:
+			
+			cache[self.get_argument('from')+self.get_argument('to')+trip['DepDateTime'][:-3]+trip['ArrDateTime'][11:-3]] = trip
 
-		self.write(alldata)
 		self.finish()
 		return
 
