@@ -41,7 +41,7 @@ class Handler(tornado.web.RequestHandler):
 		global stops
 
 		try:
-			self.write(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')])
+			self.write(self.makeresponse(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')]))
 			self.finish()
 			return
 		except:
@@ -86,17 +86,18 @@ class Handler(tornado.web.RequestHandler):
 		for trip in alldata['GetJourneyResponse']['GetJourneyResult']['Journeys']['Journey']:
 			cache[self.get_argument('from')+self.get_argument('to')+trip['DepDateTime'][:-3]+trip['ArrDateTime'][11:-3]] = trip
 		try:
-			self.write(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')])
+			self.write(self.makeresponse(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')]))
 			self.finish()
 			return
 		except:
 			self.write({'error':'no trip found'})
 			self.finish()
 			return
-	def makeresponse(data):
+
+	def makeresponse(self, data):
 		outdata = {"travelerAge":35,	
 			"travelerIsStudent":False,
-			"sellername":"HLT",
+			"sellername":"Skånetrafiken",
 			"price":"",
 			"currency":"SEK",
 			"validPrice":True,
@@ -108,7 +109,7 @@ class Handler(tornado.web.RequestHandler):
 		outdata['date'] = self.get_argument('date')
 		outdata['from'] = self.get_argument('from')
 		outdata['to'] = self.get_argument('to')
-		outdata['price'] = data[]
+		outdata['price'] = data["Prices"]["PriceInfo"][3]["Price"]
 		outdata['validPrice'] = 1
 	
 		return outdata
