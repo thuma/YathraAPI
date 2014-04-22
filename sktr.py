@@ -39,6 +39,13 @@ class Handler(tornado.web.RequestHandler):
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		global cache
 		global stops
+
+		try:
+			self.write(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')])
+			self.finish()
+			return
+		except:
+			notincache = 1
 		
 		try:
 			fromid = tornado.escape.url_escape(stops[self.get_argument('from')]['name'])+'|'+stops[self.get_argument('from')]['id']+'|0'
@@ -77,9 +84,32 @@ class Handler(tornado.web.RequestHandler):
 		alldata = alldata['soap:Envelope']['soap:Body']
 		
 		for trip in alldata['GetJourneyResponse']['GetJourneyResult']['Journeys']['Journey']:
-			
 			cache[self.get_argument('from')+self.get_argument('to')+trip['DepDateTime'][:-3]+trip['ArrDateTime'][11:-3]] = trip
-
-		self.finish()
-		return
+		try:
+			self.write(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')])
+			self.finish()
+			return
+		except:
+			self.write({'error':'no trip found'})
+			self.finish()
+			return
+	def makeresponse(data):
+		outdata = {"travelerAge":35,	
+			"travelerIsStudent":False,
+			"sellername":"HLT",
+			"price":"",
+			"currency":"SEK",
+			"validPrice":True,
+			"url":"http://www.skanetrafiken.se"
+			}
+		
+		outdata['departureTime'] = self.get_argument('departureTime')
+		outdata['arrivalTime'] = self.get_argument('arrivalTime')
+		outdata['date'] = self.get_argument('date')
+		outdata['from'] = self.get_argument('from')
+		outdata['to'] = self.get_argument('to')
+		outdata['price'] = data[]
+		outdata['validPrice'] = 1
+	
+		return outdata
 
