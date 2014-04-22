@@ -41,6 +41,7 @@ class Handler(tornado.web.RequestHandler):
 		global stops
 
 		try:
+			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')]
 			self.write(self.makeresponse(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')]))
 			self.finish()
 			return
@@ -73,8 +74,8 @@ class Handler(tornado.web.RequestHandler):
 			self.finish()
 			return
 
-		searchurl = 'http://www.labs.skanetrafiken.se/v2.2/resultspage.asp?cmdaction=next&selPointFr='+fromid+'&selPointTo='+toid+'&LastStart='+date+'&NoOf=3&transportMode=31'
-
+		searchurl = 'http://www.labs.skanetrafiken.se/v2.2/resultspage.asp?cmdAction=next&selPointFr='+fromid+'&selPointTo='+toid+'&LastStart='+date+'&transportMode=31'
+	
 		self.myhttprequest = tornado.httpclient.HTTPRequest(searchurl, method='GET')
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
 
@@ -83,8 +84,19 @@ class Handler(tornado.web.RequestHandler):
 		alldata = xmltodict.parse(response.body)
 		alldata = alldata['soap:Envelope']['soap:Body']
 		
+		first = "nodate"
+		last = "nodate"
 		for trip in alldata['GetJourneyResponse']['GetJourneyResult']['Journeys']['Journey']:
 			cache[self.get_argument('from')+self.get_argument('to')+trip['DepDateTime'][:-3]+trip['ArrDateTime'][11:-3]] = trip
+			if first == "nodate":
+				first = trip["DepDateTime"][11:-3]
+			else:
+				last = trip["DepDateTime"][11:-3]
+		try:
+			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')].append({'first':first,'last':last})
+		except:
+			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')] = []
+			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')].append({'first':first,'last':last})
 		try:
 			self.write(self.makeresponse(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')]))
 			self.finish()
