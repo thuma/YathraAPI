@@ -1,33 +1,42 @@
-<?php
-header("Content-type: application/json; charset=utf-8");
+# !/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-if(file_exists('otstations/'.$_GET['from'])==FALSE){
-die('{"error":"from station not in list"}');
-}
-if(file_exists('otstations/'.$_GET['to'])==FALSE){
-die('{"error":"to station not in list"}');
-}
+import tornado.httpclient
+from bs4 import BeautifulSoup
 
-// Check if in cache:
-asort($_GET);
-$cachefile = 'otcache/'.md5(json_encode($_GET));
-if(file_exists($cachefile)){
-		die(file_get_contents($cachefile));
-}
 
-$_GET['from'] = json_decode(file_get_contents('otstations/'.$_GET['from']));
-$_GET['to'] = json_decode(file_get_contents('otstations/'.$_GET['to']));
+http_client = tornado.httpclient.HTTPClient()
+try:
+    response = http_client.fetch('https://raw.githubusercontent.com/thuma/Transit-Stop-Identifier-Conversions-Sweden/master/ostgotatrafiken-gtfs.csv')
+    list_data = response.body
+except tornado.httpclient.HTTPError as e:
+    print "Error:", e
+http_client.close()
+htlcache = {}
+hltstops = {}
+list_data = list_data.split('\n')
 
-// Generate search object.
-$query->start = $_GET['from']->Id;
-$query->end = $_GET['to']->Id;
-$query->date = $_GET['date'].' '.$_GET['departureTime']; 
-$query->direction = '0'; 
-$query->span = 'default';
-$query->traffictype = '31';
-$query->changetime = '0';
-$query->priority = '0';
-$query->walk = 'false';
+for row in list_data:
+	try:
+		parts = row.split(';')
+		hltstops[parts[4]] = {}
+		hltstops[parts[4]]['id'] = parts[3]
+		hltstops[parts[4]]['name'] = parts[0]
+	except:
+		parts = ''
+
+
+
+# Generate search object.
+query['start'] = $_GET['from']->Id;
+query['end'] = $_GET['to']->Id;
+query['date'] = $_GET['date'].' '.$_GET['departureTime']; 
+query['direction'] = '0'; 
+query['span'] = 'default';
+query['traffictype'] = '31';
+query['changetime'] = '0';
+query['priority'] = '0';
+query['walk'] = 'false';
 
 
 
