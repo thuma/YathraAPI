@@ -7,6 +7,10 @@ import tornado.escape
 import json
 import time
 
+def getSec(s):
+    l = map(int, s.split(':')) # l = list(map(int, s.split(':'))) in Python 3.x
+    return sum(n * sec for n, sec in zip(l[::-1], (60, 3600)))
+
 http_client = tornado.httpclient.HTTPClient()
 try:
     response = http_client.fetch('https://raw.githubusercontent.com/thuma/Transit-Stop-Identifier-Conversions-Sweden/master/skanerafiken-gtfs.csv')
@@ -41,13 +45,20 @@ class Handler(tornado.web.RequestHandler):
 		global stops
 
 		try:
-			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')]
 			self.write(self.makeresponse(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')]))
 			self.finish()
 			return
 		except:
-			notincache = 1
-		
+			timedata = getSec(self.get_argument('departureTime'))
+			try:
+				for range in cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')]:
+					print "hh"+str(timedata)
+					if range['last'] > timedata and timedata > rage['first']:
+						self.write({'error':'trip not found in search'})
+						self.finish()
+						return
+			except:
+				hm = 1
 		try:
 			fromid = tornado.escape.url_escape(stops[self.get_argument('from')]['name'])+'|'+stops[self.get_argument('from')]['id']+'|0'
 			toid = tornado.escape.url_escape(stops[self.get_argument('to')]['name'])+'|'+stops[self.get_argument('to')]['id']+'|0'
@@ -93,10 +104,10 @@ class Handler(tornado.web.RequestHandler):
 			else:
 				last = trip["DepDateTime"][11:-3]
 		try:
-			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')].append({'first':first,'last':last})
+			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')].append({'first':getSec(first),'last':getSec(last)})
 		except:
 			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')] = []
-			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')].append({'first':first,'last':last})
+			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')].append({'first':getSec(first),'last':getSec(last)})
 		try:
 			self.write(self.makeresponse(cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')+'T'+self.get_argument('departureTime')+self.get_argument('arrivalTime')]))
 			self.finish()
