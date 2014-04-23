@@ -51,9 +51,8 @@ class Handler(tornado.web.RequestHandler):
 		except:
 			timedata = getSec(self.get_argument('departureTime'))
 			try:
-				for range in cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')]:
-					print "hh"+str(timedata)
-					if range['last'] > timedata and timedata > rage['first']:
+				for rangedate in cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')]:
+					if rangedate['last'] > timedata and timedata > rangedate['first']:
 						self.write({'error':'trip not found in search'})
 						self.finish()
 						return
@@ -101,7 +100,7 @@ class Handler(tornado.web.RequestHandler):
 			cache[self.get_argument('from')+self.get_argument('to')+trip['DepDateTime'][:-3]+trip['ArrDateTime'][11:-3]] = trip
 			if first == "nodate":
 				first = trip["DepDateTime"][11:-3]
-			else:
+			elif trip['DepDateTime'][:10] == self.get_argument('date'):
 				last = trip["DepDateTime"][11:-3]
 		try:
 			cache[self.get_argument('from')+self.get_argument('to')+self.get_argument('date')].append({'first':getSec(first),'last':getSec(last)})
