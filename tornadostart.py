@@ -17,6 +17,7 @@ import swebus
 import nettbuss
 import bt
 import sktr
+import ot
 import os
 
 settings = {
@@ -52,6 +53,8 @@ application = tornado.web.Application([
     (r"/nettbuss/cache/", nettbuss.CachePrint),
     (r"/sktr/", sktr.Handler),
     (r"/sktr/cache/", sktr.CachePrint),
+    (r"/ot/", ot.Handler),
+    (r"/ot/cache/", ot.CachePrint),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
 
