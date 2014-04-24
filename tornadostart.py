@@ -58,6 +58,8 @@ application = tornado.web.Application([
     (r"/ot/cache/", ot.CachePrint),
     (r"/tib/", tib.Handler),
     (r"/tib/cache/", tib.CachePrint),
+    (r"/at/", at.Handler),
+    (r"/at/cache/", at.CachePrint),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
 
