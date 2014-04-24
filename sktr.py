@@ -70,7 +70,7 @@ class Handler(tornado.web.RequestHandler):
 			deptime = time.strptime(self.get_argument('date')+self.get_argument('departureTime'),'%Y-%m-%d%H:%M')
 			deptime = time.mktime(deptime)
 			deptime = deptime-120
-			deptime = time.gmtime(deptime)
+			deptime = time.localtime(deptime)
 			
 		except:
 			self.write({'error':'departureTime HH:MM missing / error, date YYYY-MM-DD missing / error'})
