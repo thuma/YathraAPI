@@ -47,6 +47,32 @@ class Handler(tornado.web.RequestHandler):
 			self.write({'error':'from/to station not in network'})
 			self.finish()
 			return
+
+		try:
+			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			outdata = {"travelerAge":35,	
+				"travelerIsStudent":False,
+				"sellername":"Östgötatr.",
+				"price":"",
+				"currency":"SEK",
+				"validPrice":True,
+				"url":"http://www.ostgotatrafiken.se"
+				}
+		
+			outdata['departureTime'] = self.get_argument('departureTime')
+			outdata['arrivalTime'] = self.get_argument('arrivalTime')
+			outdata['date'] = self.get_argument('date')
+			outdata['from'] = self.get_argument('from')
+			outdata['to'] = self.get_argument('to')
+			outdata['price'] = price['Prices'][3]['Price']
+			outdata['validPrice'] = 1
+	
+			self.write(outdata)
+			self.finish()
+			return	
+		except:		
+			notfound = 1
+
 		
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		# Generate search object.
