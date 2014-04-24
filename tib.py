@@ -3,6 +3,7 @@
 
 import tornado.httpclient
 import json
+import time
 
 http_client = tornado.httpclient.HTTPClient()
 try:
@@ -86,10 +87,12 @@ class Handler(tornado.web.RequestHandler):
 		global cache
 		
 		trips = json.loads(response.body)
-		trips = trips['d']
-
+		trips = trips['d']['Result']
+		
 		for trip in trips:
-			cache[time.strftime("%Y-%m-%d",time.localtime(float(trip['Departure'][6:-5])))+self.get_argument('from')+self.get_argument('to')+trip['strDeparture']+trip['strArrival']] = trip
+			fromtime = time.localtime(float(trip['StartTime'][6:-5]))
+			totime = time.localtime(float(trip['EndTime'][6:-5]))
+			cache[time.strftime("%Y-%m-%d",fromtime)+self.get_argument('from')+self.get_argument('to')+time.strftime("%H:%M",fromtime)+time.strftime("%H:%M",totime)] = trip
 			
 		try:
 			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
@@ -107,7 +110,7 @@ class Handler(tornado.web.RequestHandler):
 			outdata['date'] = self.get_argument('date')
 			outdata['from'] = self.get_argument('from')
 			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['Prices'][3]['Price']
+			outdata['price'] = price['TotalPrice']['Full']
 			outdata['validPrice'] = 1
 	
 			self.write(outdata)
