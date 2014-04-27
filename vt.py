@@ -45,7 +45,7 @@ class Handler(tornado.web.RequestHandler):
 ?SGID="+stops[self.get_argument('from')]['id']+"\
 &ZGID="+stops[self.get_argument('to')]['id']+"\
 &date="+self.get_argument('date')+"\
-&time="+tornado.escape.url_escape("14:30")+"\
+&time="+tornado.escape.url_escape(self.get_argument('departureTime'))+"\
 &start=1\
 &L=vs_vasttrafik\
 &timesel=depart"
