@@ -27,7 +27,9 @@ for row in list_data:
 		stops[parts[4]]['name'] = parts[0]
 	except:
 		parts = ''
-
+def getSec(s):
+    l = map(int, s.split(':')) # l = list(map(int, s.split(':'))) in Python 3.x
+    return sum(n * sec for n, sec in zip(l[::-1], (60, 3600)))
 
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
@@ -57,39 +59,48 @@ class Handler(tornado.web.RequestHandler):
 			return
 		
 		try:
-			trip = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
-			outdata = {"travelerAge":35,	
-				"travelerIsStudent":False,
-				"sellername":"Västtrafik",
-				"price":"",
-				"currency":"SEK",
-				"validPrice":True
-				}
+			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
+			for i in cache[cachekey]:
+				depSec = getSec(i['departureTime'])
+				arrSec = getSec(i['arrivalTime'])
+				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
+				minDepSec = maxDepSec - 8*60
+				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
+				minArrSec = maxArrSec - 8*60
+				if maxDepSec > depSec > minDepSec and maxArrSec > arrSec > minArrSec:
+					outdata = {"travelerAge":35,	
+						"travelerIsStudent":False,
+						"sellername":"Västtrafik",
+						"price":"",
+						"currency":"SEK",
+						"validPrice":True
+						}
 
-			outdata['departureTime'] = self.get_argument('departureTime')
-			outdata['arrivalTime'] = self.get_argument('arrivalTime')
-			outdata['date'] = self.get_argument('date')
-			outdata['from'] = self.get_argument('from')
-			outdata['to'] = self.get_argument('to')
-			outdata['price'] = trip['prisdata']['Kontoladdning']['Vuxen']
-			outdata['validPrice'] = 1
-			outdata['url'] = self.url
+					outdata['departureTime'] = i['departureTime']
+					outdata['arrivalTime'] = i['arrivalTime']
+					outdata['date'] = self.get_argument('date')
+					outdata['from'] = self.get_argument('from')
+					outdata['to'] = self.get_argument('to')
+					outdata['price'] = i['prisdata']['Kontoladdning']['Vuxen']
+					outdata['validPrice'] = 1
+					outdata['url'] = self.url
 	
-			self.write(outdata)
-			self.finish()
-			return
+					self.write(outdata)
+					self.finish()
+					return
 		except:
 			notfoundincache = 1	
 		
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		try:
-			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')
+			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
 			header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey]['kaka']})
 			request_setup = tornado.httpclient.HTTPRequest(cache[cachekey]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
 			self.http_client.fetch(request_setup, self.gotprice)
 			return
 		except:
 			serachforprice = 1
+
 		self.http_client.fetch(self.url, self.searchdone)
 		
 	def searchdone(self, response):
@@ -102,15 +113,28 @@ class Handler(tornado.web.RequestHandler):
 		for i in lista:
 			depTime = i.parent.find_all("td", { "headers" : "hafasOVTimeDep"})[0].get_text().strip()
 			arrTime = i.parent.find_all("td", { "headers" : "hafasOVTimeArr"})[0].get_text().strip()
-			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+depTime+arrTime
+			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
 			cache[cachekey] = {}
-			cache[cachekey]['url'] = i.parent.find_all("td", { "headers" : "hafasOVFares"})[0].find_all("a")[0]["href"]
-			cache[cachekey]['kaka'] = kaka
+			cache[cachekey][depTime+arrTime] = {}
+			cache[cachekey][depTime+arrTime]['url'] = i.parent.find_all("td", { "headers" : "hafasOVFares"})[0].find_all("a")[0]["href"]
+			cache[cachekey][depTime+arrTime]['kaka'] = kaka
+			cache[cachekey][depTime+arrTime]['deparuteTime'] = depTime
+			cache[cachekey][depTime+arrTime]['arrivalTime'] = arrTime
 		try:
-			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')
-			header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey]['kaka']})
-			request_setup = tornado.httpclient.HTTPRequest(cache[cachekey]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
-			self.http_client.fetch(request_setup, self.gotprice)
+			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
+			for i in cache[cachekey]:
+				depSec = getSec(i['departureTime'])
+				arrSec = getSec(i['arrivalTime'])
+				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
+				minDepSec = maxDepSec - 8*60
+				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
+				minArrSec = maxArrSec - 8*60
+				self.pdep = i['departureTime']
+				self.parr = i['arrivalTime']
+				if maxDepSec > depSec > minDepSec and maxArrSec > arrSec > minArrSec:
+					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey][i['departureTime']+i['arrivalTime']]['kaka']})
+					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
+					self.http_client.fetch(request_setup, self.gotprice)
 		except:
 			self.write({'Error':'no trip found'})
 			self.finish()
@@ -130,26 +154,34 @@ class Handler(tornado.web.RequestHandler):
 				prisdata[fields[0].get_text().strip()]['Ungdom'] = fields[2].get_text().split(' kr')[0].strip()
 				prisdata[fields[0].get_text().strip()]['Skolungdom'] = fields[3].get_text().split(' kr')[0].strip()
 
-		cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]['prisdata'] = prisdata
+		cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')][self.pdep+self.parr]['prisdata'] = prisdata
 		
 		try:
-			trip = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
-			outdata = {"travelerAge":35,	
-				"travelerIsStudent":False,
-				"sellername":"Västtrafik",
-				"price":"",
-				"currency":"SEK",
-				"validPrice":True
-				}
+			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
+			for i in cache[cachekey]:
+				depSec = getSec(i['departureTime'])
+				arrSec = getSec(i['arrivalTime'])
+				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
+				minDepSec = maxDepSec - 8*60
+				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
+				minArrSec = maxArrSec - 8*60
+				if maxDepSec > depSec > minDepSec and maxArrSec > arrSec > minArrSec:
+					outdata = {"travelerAge":35,	
+						"travelerIsStudent":False,
+						"sellername":"Västtrafik",
+						"price":"",
+						"currency":"SEK",
+						"validPrice":True
+						}
 
-			outdata['departureTime'] = self.get_argument('departureTime')
-			outdata['arrivalTime'] = self.get_argument('arrivalTime')
-			outdata['date'] = self.get_argument('date')
-			outdata['from'] = self.get_argument('from')
-			outdata['to'] = self.get_argument('to')
-			outdata['price'] = trip['prisdata']['Kontoladdning']['Vuxen']
-			outdata['validPrice'] = 1
-			outdata['url'] = self.url
+					outdata['departureTime'] = i['departureTime']
+					outdata['arrivalTime'] = i['arrivalTime']
+					outdata['date'] = self.get_argument('date')
+					outdata['from'] = self.get_argument('from')
+					outdata['to'] = self.get_argument('to')
+					outdata['price'] = i['prisdata']['Kontoladdning']['Vuxen']
+					outdata['validPrice'] = 1
+					outdata['url'] = self.url
 	
 			self.write(outdata)
 			self.finish()
