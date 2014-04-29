@@ -5,6 +5,7 @@ import tornado.httpclient
 import tornado.escape
 import tornado.httputil
 import time
+
 from bs4 import BeautifulSoup
 
 
@@ -61,19 +62,19 @@ class Handler(tornado.web.RequestHandler):
 		try:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
 			for i in cache[cachekey]:
+				i = cache[cachekey][i]
 				depSec = getSec(i['departureTime'])
 				arrSec = getSec(i['arrivalTime'])
 				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
 				minDepSec = maxDepSec - 8*60
 				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
 				minArrSec = maxArrSec - 8*60
-				if maxDepSec > depSec > minDepSec and maxArrSec > arrSec > minArrSec:
+				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
 					outdata = {"travelerAge":35,	
 						"travelerIsStudent":False,
 						"sellername":"Västtrafik",
 						"price":"",
-						"currency":"SEK",
-						"validPrice":True
+						"currency":"SEK"
 						}
 
 					outdata['departureTime'] = i['departureTime']
@@ -94,10 +95,19 @@ class Handler(tornado.web.RequestHandler):
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		try:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-			header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey]['kaka']})
-			request_setup = tornado.httpclient.HTTPRequest(cache[cachekey]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
-			self.http_client.fetch(request_setup, self.gotprice)
-			return
+			for i in cache[cachekey]:
+				i = cache[cachekey][i]
+				depSec = getSec(i['departureTime'])
+				arrSec = getSec(i['arrivalTime'])
+				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
+				minDepSec = maxDepSec - 8*60
+				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
+				minArrSec = maxArrSec - 8*60
+				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
+					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey][i['departureTime']+i['arrivalTime']]['kaka']})
+					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey][i['departureTime']+i['arrivalTime']]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
+					self.http_client.fetch(request_setup, self.gotprice)
+					return
 		except:
 			serachforprice = 1
 
@@ -114,15 +124,25 @@ class Handler(tornado.web.RequestHandler):
 			depTime = i.parent.find_all("td", { "headers" : "hafasOVTimeDep"})[0].get_text().strip()
 			arrTime = i.parent.find_all("td", { "headers" : "hafasOVTimeArr"})[0].get_text().strip()
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-			cache[cachekey] = {}
-			cache[cachekey][depTime+arrTime] = {}
+			try:
+				hej = cache[cachekey]
+			except:
+				cache[cachekey] = {}
+			
+			try:
+				hej = cache[cachekey][depTime+arrTime]
+			except:
+				cache[cachekey][depTime+arrTime] = {}
+
 			cache[cachekey][depTime+arrTime]['url'] = i.parent.find_all("td", { "headers" : "hafasOVFares"})[0].find_all("a")[0]["href"]
 			cache[cachekey][depTime+arrTime]['kaka'] = kaka
-			cache[cachekey][depTime+arrTime]['deparuteTime'] = depTime
+			cache[cachekey][depTime+arrTime]['departureTime'] = depTime
 			cache[cachekey][depTime+arrTime]['arrivalTime'] = arrTime
+		
 		try:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
 			for i in cache[cachekey]:
+				i = cache[cachekey][i]
 				depSec = getSec(i['departureTime'])
 				arrSec = getSec(i['arrivalTime'])
 				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
@@ -131,10 +151,11 @@ class Handler(tornado.web.RequestHandler):
 				minArrSec = maxArrSec - 8*60
 				self.pdep = i['departureTime']
 				self.parr = i['arrivalTime']
-				if maxDepSec > depSec > minDepSec and maxArrSec > arrSec > minArrSec:
+				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
 					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey][i['departureTime']+i['arrivalTime']]['kaka']})
-					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
+					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey][i['departureTime']+i['arrivalTime']]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
 					self.http_client.fetch(request_setup, self.gotprice)
+					return
 		except:
 			self.write({'Error':'no trip found'})
 			self.finish()
@@ -156,22 +177,22 @@ class Handler(tornado.web.RequestHandler):
 
 		cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')][self.pdep+self.parr]['prisdata'] = prisdata
 		
-		try:
+		if 1 == 1:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
 			for i in cache[cachekey]:
+				i = cache[cachekey][i]
 				depSec = getSec(i['departureTime'])
 				arrSec = getSec(i['arrivalTime'])
 				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
 				minDepSec = maxDepSec - 8*60
 				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
 				minArrSec = maxArrSec - 8*60
-				if maxDepSec > depSec > minDepSec and maxArrSec > arrSec > minArrSec:
+				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
 					outdata = {"travelerAge":35,	
 						"travelerIsStudent":False,
 						"sellername":"Västtrafik",
 						"price":"",
-						"currency":"SEK",
-						"validPrice":True
+						"currency":"SEK"
 						}
 
 					outdata['departureTime'] = i['departureTime']
@@ -179,6 +200,7 @@ class Handler(tornado.web.RequestHandler):
 					outdata['date'] = self.get_argument('date')
 					outdata['from'] = self.get_argument('from')
 					outdata['to'] = self.get_argument('to')
+					print i
 					outdata['price'] = i['prisdata']['Kontoladdning']['Vuxen']
 					outdata['validPrice'] = 1
 					outdata['url'] = self.url
@@ -186,7 +208,7 @@ class Handler(tornado.web.RequestHandler):
 			self.write(outdata)
 			self.finish()
 			return
-		except:
+		#except:
 			nofound = 1
 
 		self.write({'Error':'no pricedata found'})
