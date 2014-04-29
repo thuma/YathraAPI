@@ -103,6 +103,8 @@ class Handler(tornado.web.RequestHandler):
 				minDepSec = maxDepSec - 8*60
 				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
 				minArrSec = maxArrSec - 8*60
+				self.pdep = i['departureTime']
+				self.parr = i['arrivalTime']
 				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
 					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey][i['departureTime']+i['arrivalTime']]['kaka']})
 					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey][i['departureTime']+i['arrivalTime']]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
@@ -200,7 +202,6 @@ class Handler(tornado.web.RequestHandler):
 					outdata['date'] = self.get_argument('date')
 					outdata['from'] = self.get_argument('from')
 					outdata['to'] = self.get_argument('to')
-					print i
 					outdata['price'] = i['prisdata']['Kontoladdning']['Vuxen']
 					outdata['validPrice'] = 1
 					outdata['url'] = self.url
