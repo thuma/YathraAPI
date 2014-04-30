@@ -1,4 +1,4 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import tornado.httpclient
@@ -159,9 +159,10 @@ class Handler(tornado.web.RequestHandler):
 					self.http_client.fetch(request_setup, self.gotprice)
 					return
 		except:
-			self.write({'Error':'no trip found'})
-			self.finish()
-			return	
+			errorinfind = 1
+		self.write({'error':'trip time not found '})
+		self.finish()
+		return	
 
 	def gotprice(self, response):
 			
