@@ -37,18 +37,37 @@ class CachePrint(tornado.web.RequestHandler):
 		global cache
 		self.write(cache)
 
+class StopsPrint(tornado.web.RequestHandler):
+	def get(self):
+		global stops
+		self.write(stops)
+
 class Handler(tornado.web.RequestHandler):
 	@tornado.web.asynchronous
 	def get(self):
 		global cache
 		global stops
-
+		
+		try:
+			datestring = self.get_argument('date')
+		except:
+			self.write({'error':'date parm missing'})
+			self.finish()
+			return
+		
+		try:
+			deptime = tornado.escape.url_escape(self.get_argument('departureTime'))
+		except:
+			self.write({'error':'departureTime parm missing'})
+			self.finish()
+			return
+		
 		try:
 			self.url = "http://reseplanerare.vasttrafik.se/bin/query.exe/sn\
 ?SGID="+stops[self.get_argument('from')]['id']+"\
 &ZGID="+stops[self.get_argument('to')]['id']+"\
-&date="+self.get_argument('date')+"\
-&time="+tornado.escape.url_escape(self.get_argument('departureTime'))+"\
+&date="+datestring+"\
+&time="+deptime+"\
 &start=1\
 &L=vs_vasttrafik\
 &timesel=depart"
@@ -112,6 +131,19 @@ class Handler(tornado.web.RequestHandler):
 					return
 		except:
 			serachforprice = 1
+			
+		try:
+			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
+			for i in cache[cachekey]['ranges']:
+				first = getSec(i['first'])
+				last = getSec(i['last'])
+				depsec = getSec(self.get_argument('departureTime'))
+				if depsec >= first and depsec <= last:
+					self.write({'error':'trip time not found in range'})
+					self.finish()
+					return	
+		except:
+				notinrange = 1	
 
 		self.http_client.fetch(self.url, self.searchdone)
 		
@@ -122,10 +154,14 @@ class Handler(tornado.web.RequestHandler):
 		bsdata = BeautifulSoup(response.body)
 		lista = bsdata.find_all("td", { "headers" : "hafasOVLinks"})
 		purl = {}
+		first = 'start'
+		last = 'last'
+		cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
 		for i in lista:
 			depTime = i.parent.find_all("td", { "headers" : "hafasOVTimeDep"})[0].get_text().strip()
+			last = depTime
 			arrTime = i.parent.find_all("td", { "headers" : "hafasOVTimeArr"})[0].get_text().strip()
-			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
+			
 			try:
 				hej = cache[cachekey]
 			except:
@@ -140,6 +176,13 @@ class Handler(tornado.web.RequestHandler):
 			cache[cachekey][depTime+arrTime]['kaka'] = kaka
 			cache[cachekey][depTime+arrTime]['departureTime'] = depTime
 			cache[cachekey][depTime+arrTime]['arrivalTime'] = arrTime
+			
+		try:
+			test = cache[cachekey]['ranges']
+		except:
+			cache[cachekey]['ranges'] = []
+		
+		cache[cachekey]['ranges'].append({'first':self.get_argument('departureTime'),'last':last})
 		
 		try:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
