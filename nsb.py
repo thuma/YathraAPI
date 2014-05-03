@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import tornado.httpclient
-import tornado.escape
+import json
+
 
 http_client = tornado.httpclient.HTTPClient()
 try:
@@ -38,13 +39,12 @@ class Handler(tornado.web.RequestHandler):
 			test2 = stops[self.get_argument('to')]
 			self.http_client.fetch('http://api1.yathra.se/prisAPI/nsb.php?'+self.request.uri.split('?')[1], self.gotdata)
 		except:
-			datamissing = 1
-		self.write({'error':' from / to not in network'})
-		self.finish()
-		return 
+			self.write({'error':' from / to not in network'})
+			self.finish()
+			return 
 
-	def gotdata(self, data):
-		self.write(data)
+	def gotdata(self, response):
+		self.write(json.loads(response.body))
 		self.finish()
 		return 
 	

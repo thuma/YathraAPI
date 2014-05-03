@@ -21,6 +21,7 @@ import ot
 import tib
 import at
 import vt
+import nsb
 import os
 
 settings = {
@@ -64,6 +65,8 @@ application = tornado.web.Application([
     (r"/at/cache/", at.CachePrint),
     (r"/vt/", vt.Handler),
     (r"/vt/cache/", vt.CachePrint),
+	(r"/nsb/", nsb.Handler),
+    (r"/nsb/cache/", nsb.CachePrint),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
 
