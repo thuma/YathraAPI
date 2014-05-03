@@ -80,8 +80,8 @@ class Handler(tornado.web.RequestHandler):
 		
 		try:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-			for i in cache[cachekey]:
-				i = cache[cachekey][i]
+			for i in cache[cachekey]['trips']:
+				i = cache[cachekey]['trips'][i]
 				depSec = getSec(i['departureTime'])
 				arrSec = getSec(i['arrivalTime'])
 				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
@@ -114,8 +114,8 @@ class Handler(tornado.web.RequestHandler):
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		try:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-			for i in cache[cachekey]:
-				i = cache[cachekey][i]
+			for i in cache[cachekey]['trips']:
+				i = cache[cachekey]['trips'][i]
 				depSec = getSec(i['departureTime'])
 				arrSec = getSec(i['arrivalTime'])
 				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
@@ -125,8 +125,8 @@ class Handler(tornado.web.RequestHandler):
 				self.pdep = i['departureTime']
 				self.parr = i['arrivalTime']
 				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
-					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey][i['departureTime']+i['arrivalTime']]['kaka']})
-					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey][i['departureTime']+i['arrivalTime']]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
+					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey]['trips'][i['departureTime']+i['arrivalTime']]['kaka']})
+					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey]['trips'][i['departureTime']+i['arrivalTime']]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
 					self.http_client.fetch(request_setup, self.gotprice)
 					return
 		except:
@@ -164,18 +164,20 @@ class Handler(tornado.web.RequestHandler):
 			
 			try:
 				hej = cache[cachekey]
+				hej = cache[cachekey]['trips']
 			except:
 				cache[cachekey] = {}
-			
+				cache[cachekey]['trips'] = {}
+				
 			try:
-				hej = cache[cachekey][depTime+arrTime]
+				hej = cache[cachekey]['trips'][depTime+arrTime]
 			except:
-				cache[cachekey][depTime+arrTime] = {}
+				cache[cachekey]['trips'][depTime+arrTime] = {}
 
-			cache[cachekey][depTime+arrTime]['url'] = i.parent.find_all("td", { "headers" : "hafasOVFares"})[0].find_all("a")[0]["href"]
-			cache[cachekey][depTime+arrTime]['kaka'] = kaka
-			cache[cachekey][depTime+arrTime]['departureTime'] = depTime
-			cache[cachekey][depTime+arrTime]['arrivalTime'] = arrTime
+			cache[cachekey]['trips'][depTime+arrTime]['url'] = i.parent.find_all("td", { "headers" : "hafasOVFares"})[0].find_all("a")[0]["href"]
+			cache[cachekey]['trips'][depTime+arrTime]['kaka'] = kaka
+			cache[cachekey]['trips'][depTime+arrTime]['departureTime'] = depTime
+			cache[cachekey]['trips'][depTime+arrTime]['arrivalTime'] = arrTime
 			
 		try:
 			test = cache[cachekey]['ranges']
@@ -186,8 +188,8 @@ class Handler(tornado.web.RequestHandler):
 		
 		try:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-			for i in cache[cachekey]:
-				i = cache[cachekey][i]
+			for i in cache[cachekey]['trips']:
+				i = cache[cachekey]['trips'][i]
 				depSec = getSec(i['departureTime'])
 				arrSec = getSec(i['arrivalTime'])
 				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
@@ -197,8 +199,8 @@ class Handler(tornado.web.RequestHandler):
 				self.pdep = i['departureTime']
 				self.parr = i['arrivalTime']
 				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
-					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey][i['departureTime']+i['arrivalTime']]['kaka']})
-					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey][i['departureTime']+i['arrivalTime']]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
+					header_setup = tornado.httputil.HTTPHeaders({"Cookie": cache[cachekey]['trips'][i['departureTime']+i['arrivalTime']]['kaka']})
+					request_setup = tornado.httpclient.HTTPRequest(cache[cachekey]['trips'][i['departureTime']+i['arrivalTime']]['url'], method='GET', headers=header_setup, follow_redirects=True, max_redirects=3)
 					self.http_client.fetch(request_setup, self.gotprice)
 					return
 		except:
@@ -221,35 +223,38 @@ class Handler(tornado.web.RequestHandler):
 				prisdata[fields[0].get_text().strip()]['Ungdom'] = fields[2].get_text().split(' kr')[0].strip()
 				prisdata[fields[0].get_text().strip()]['Skolungdom'] = fields[3].get_text().split(' kr')[0].strip()
 
-		cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')][self.pdep+self.parr]['prisdata'] = prisdata
+		cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]['trips'][self.pdep+self.parr]['prisdata'] = prisdata
 		
 		if 1 == 1:
 			cachekey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-			for i in cache[cachekey]:
-				i = cache[cachekey][i]
+			for i in cache[cachekey]['trips']:
+				i = cache[cachekey]['trips'][i]
 				depSec = getSec(i['departureTime'])
 				arrSec = getSec(i['arrivalTime'])
 				maxDepSec = getSec(self.get_argument('departureTime')) + 4*60
 				minDepSec = maxDepSec - 8*60
 				maxArrSec = getSec(self.get_argument('arrivalTime')) + 4*60
 				minArrSec = maxArrSec - 8*60
-				if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
-					outdata = {"travelerAge":35,	
-						"travelerIsStudent":False,
-						"sellername":"Västtrafik",
-						"price":"",
-						"currency":"SEK"
-						}
-
-					outdata['departureTime'] = i['departureTime']
-					outdata['arrivalTime'] = i['arrivalTime']
-					outdata['date'] = self.get_argument('date')
-					outdata['from'] = self.get_argument('from')
-					outdata['to'] = self.get_argument('to')
-					outdata['price'] = i['prisdata']['Kontoladdning']['Vuxen']
-					outdata['validPrice'] = 1
-					outdata['url'] = self.url
-	
+				try:
+					if maxDepSec >= depSec and depSec >= minDepSec and maxArrSec >= arrSec and arrSec >= minArrSec:
+						out = {"travelerAge":35,	
+							"travelerIsStudent":False,
+							"sellername":"Västtrafik",
+							"price":"",
+							"currency":"SEK"
+							}
+						out['departureTime'] = i['departureTime']
+						out['arrivalTime'] = i['arrivalTime']
+						out['date'] = self.get_argument('date')
+						out['from'] = self.get_argument('from')
+						out['to'] = self.get_argument('to')
+						out['price'] = i['prisdata']['Kontoladdning']['Vuxen']
+						out['validPrice'] = 1
+						out['url'] = self.url
+						outdata = out
+						break
+				except:
+					errorinprice = 1	
 			self.write(outdata)
 			self.finish()
 			return
