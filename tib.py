@@ -61,7 +61,7 @@ class Handler(tornado.web.RequestHandler):
 			outdata['date'] = self.get_argument('date')
 			outdata['from'] = self.get_argument('from')
 			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['Prices'][3]['Price']
+			outdata['price'] = round(price['Prices'][3]['Price'],2)
 			outdata['validPrice'] = 1
 	
 			self.write(outdata)
@@ -110,7 +110,7 @@ class Handler(tornado.web.RequestHandler):
 			outdata['date'] = self.get_argument('date')
 			outdata['from'] = self.get_argument('from')
 			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['TotalPrice']['Full']
+			outdata['price'] = round(price['TotalPrice']['Full'],2)
 			outdata['validPrice'] = 1
 	
 			self.write(outdata)
