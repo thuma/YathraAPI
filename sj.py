@@ -46,7 +46,7 @@ class Handler(tornado.web.RequestHandler):
 		outdata['price'] = int(data['pricedata']['price'][:-2])
 		outdata['validPrice'] = data['pricedata']['validPrice']
 		outdata['soldOut'] = data['pricedata']['soldOut']
-		outdata['url'] = 'http://www.sj.se/microsite/microsite/submit.form?header.key=K253891822496069832&l=sv&B='+tornado.escape.url_escape(self.fromname)+'&c='+tornado.escape.url_escape(self.toname)+'&f='+self.getdate.replace('-','')+'&F='+self.gettime.replace(':','')+'&g=DEPARTURE_DATE_TIME&h='+self.getdate.replace('-','')+'&i=DEPARTURE_DATE_TIME&N=1&mA=VU&cA=Inget+kort'
+		outdata['url'] = 'http://www.sj.se/microsite/microsite/submit.form?header.key=K253891822496069832&l=sv&B='+tornado.escape.url_escape(self.fromname)+'&c='+tornado.escape.url_escape(self.toname)+'&f='+self.getdate.replace('-','')+'&F='+self.gettime[:2]+'00&g=DEPARTURE_DATE_TIME&h='+self.getdate.replace('-','')+'&i=DEPARTURE_DATE_TIME&N=1&mA=VU&cA=Inget+kort'
 		self.returndata(outdata)
 	
 	def returnerror(self, data):
