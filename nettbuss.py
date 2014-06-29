@@ -104,8 +104,10 @@ class Handler(tornado.web.RequestHandler):
 			ank = i.parent.find_all("td", { "class" : "cell3"})[0].get_text()
 			tid = i.parent.find_all("td", { "class" : "cell4"})[0].get_text()
 			byte = i.parent.find_all("td", { "class" : "cell5"})[0].get_text()
-			pris = i.parent.find_all("td", { "class" : "cell6"})[0].get_text()
-
+			prisa = i.parent.find_all("td", { "class" : "ticketTypeCell"})[0].get_text()
+			prisb = i.parent.find_all("td", { "class" : "ticketTypeCell"})[1].get_text()
+			pris = prisa.strip().replace('-', '') + prisb.strip().replace('-', '')
+			
 			cache[datestops][avg+ank] = {}
 			cache[datestops][avg+ank]['Res med'] = med
 			cache[datestops][avg+ank]['Restid'] = tid
