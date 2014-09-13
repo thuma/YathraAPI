@@ -26,7 +26,7 @@ for row in list_data:
 list_data = ''
 
 file = open('../sl.key', 'r')
-key = file.readline():
+key = file.readline()
 file.close()
 
 class CachePrint(tornado.web.RequestHandler):
@@ -63,7 +63,15 @@ class Handler(tornado.web.RequestHandler):
 
 		for trip in alldata['HafasResponse']['Trip']:
 			if trip['Summary']['DepartureTime']['#text'] == self.get_argument('departureTime'):
-				self.write({'pris':trip['Summary']['PriceInfo']['TariffZones']})
+				
+				pris = '125'
+				if trip['Summary']['PriceInfo']['TariffZones'] == 'A':
+				  pris = '25'
+				elif trip['Summary']['PriceInfo']['TariffZones'] == 'AB':
+				  pris = '37,5'
+				elif trip['Summary']['PriceInfo']['TariffZones'] == 'ABC':
+				  pris = '50'
+				self.write({'pris':pris})
 				self.finish()
 				return
 			
