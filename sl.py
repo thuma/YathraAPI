@@ -16,15 +16,18 @@ cache = {}
 stops = {}
 
 list_data = list_data.split('\n')
-
 for row in list_data:
 	try:
 		parts = row.split(';')
-		stops[parts[0]] = parts[1]
+		stops[parts[1]] = parts[0]
 	except:
 		parts = ''
 
 list_data = ''
+
+file = open('../sl.key', 'r')
+key = file.readline():
+file.close()
 
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
@@ -38,6 +41,8 @@ class Handler(tornado.web.RequestHandler):
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		global cache
 		global stops
+		global key
+		
 		try:
 			fromid = stops[self.get_argument('from')]
 			toid = stops[self.get_argument('to')]
@@ -45,33 +50,16 @@ class Handler(tornado.web.RequestHandler):
 			self.write({'error':'from/to station not in network'})
 			self.finish()
 			return
-		      
-		try:
-			deptime = time.strptime(self.get_argument('date')+self.get_argument('departureTime'),'%Y-%m-%d%H:%M')
-			deptime = time.mktime(deptime)
-			deptime = deptime-120
-			deptime = time.localtime(deptime)
-			
-		except:
-			self.write({'error':'departureTime HH:MM missing / error, date YYYY-MM-DD missing / error'})
-			self.finish()
-			return
-			
-		try:
-			date = time.strftime('%Y-%m-%d+%H:%M',deptime)
-		except:
-			self.write({'error':'date YYYY-MM-DD HH:MM missing / error'})
-			self.finish()
-			return
 
-		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key=ad42ec1df5f5e85ee60b8daec082f4e5&S='+fromid+'&Z='+toid+'&time='+self.get_argument('departureTime')
+		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key='+key+'&S='+fromid+'&Z='+toid+'&time='+self.get_argument('departureTime')
 	
 		self.myhttprequest = tornado.httpclient.HTTPRequest(searchurl, method='GET')
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
 
 	def searchdone(self, response):
 		http_client = tornado.httpclient.HTTPClient()
-		alldata = trips = tornado.escape.json_decode(response.body)
+		
+		alldata = tornado.escape.json_decode(unicode(response.body, 'latin-1'))
 
 		for trip in alldata['HafasResponse']['Trip']:
 			if trip['Summary']['DepartureTime']['#text'] == self.get_argument('departureTime'):
