@@ -54,6 +54,10 @@ class Handler(tornado.web.RequestHandler):
 		try:
 			date = self.get_argument('date').split('-')
 			date = date[2]+'.'+date[1]+'.'+date[0]
+		except:
+			self.write({'error':'date error should be YYYY-MM-DD'})
+			self.finish()
+			return
 
 		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key='+key+'&Date='+date+'&S='+fromid+'&Z='+toid+'&time='+self.get_argument('departureTime')
 	
