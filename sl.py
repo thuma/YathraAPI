@@ -26,7 +26,7 @@ for row in list_data:
 list_data = ''
 
 file = open('../sl.key', 'r')
-key = file.readline()
+key = file.readline().strip()
 file.close()
 
 class CachePrint(tornado.web.RequestHandler):
