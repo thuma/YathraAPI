@@ -71,7 +71,22 @@ class Handler(tornado.web.RequestHandler):
 				  pris = '37,5'
 				elif trip['Summary']['PriceInfo']['TariffZones'] == 'ABC':
 				  pris = '50'
-				self.write({'pris':pris})
+				  
+				outdata = {
+					  "travelerAge":35,	
+					  "travelerIsStudent":False,
+					  "sellername":"SL",
+					  "price":pris,
+					  "currency":"SEK",
+					  "validPrice":True,
+					  "url":"http://www.sl.se",
+					  "departureTime":self.get_argument('departureTime'),
+					  "arrivalTime":self.get_argument('arrivalTime'),
+					  "date":self.get_argument('date'),
+					  "from":self.get_argument('from'),
+					  "to":self.get_argument('to')
+					  }
+				self.write(outdata)
 				self.finish()
 				return
 			
