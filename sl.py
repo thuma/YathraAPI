@@ -50,8 +50,12 @@ class Handler(tornado.web.RequestHandler):
 			self.write({'error':'from/to station not in network'})
 			self.finish()
 			return
+		      
+		try:
+			date = self.get_argument('date').split('-')
+			date = date[2]+'.'+date[1]+'.'+date[0]
 
-		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key='+key+'&S='+fromid+'&Z='+toid+'&time='+self.get_argument('departureTime')
+		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key='+key+'&Date='+date+'&S='+fromid+'&Z='+toid+'&time='+self.get_argument('departureTime')
 	
 		self.myhttprequest = tornado.httpclient.HTTPRequest(searchurl, method='GET')
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
