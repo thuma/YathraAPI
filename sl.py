@@ -87,7 +87,7 @@ class Handler(tornado.web.RequestHandler):
 					  "price":pris,
 					  "currency":"SEK",
 					  "validPrice":True,
-					  "url":"http://www.sl.se",
+					  "url":"http://sl.se/#/Travel/SearchTravelById/null/null/"+self.get_argument('from')+"/"+self.get_argument('to')+"/"+self.get_argument('date')+"%2520"+self.get_argument('departureTime').replace(":","_")+"/depart/sv/null/null/null/null/null/null/null/null/false/null/0",
 					  "departureTime":self.get_argument('departureTime'),
 					  "arrivalTime":self.get_argument('arrivalTime'),
 					  "date":self.get_argument('date'),
