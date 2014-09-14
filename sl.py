@@ -44,8 +44,8 @@ class Handler(tornado.web.RequestHandler):
 		global key
 		
 		try:
-			fromid = stops[self.get_argument('from')]
-			toid = stops[self.get_argument('to')]
+			self.fromid = stops[self.get_argument('from')]
+			self.toid = stops[self.get_argument('to')]
 		except:
 			self.write({'error':'from/to station not in network'})
 			self.finish()
@@ -59,7 +59,7 @@ class Handler(tornado.web.RequestHandler):
 			self.finish()
 			return
 
-		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key='+key+'&Date='+date+'&S='+fromid+'&Z='+toid+'&time='+self.get_argument('departureTime')
+		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key='+key+'&Date='+date+'&S='+self.fromid+'&Z='+self.toid+'&time='+self.get_argument('departureTime')
 	
 		self.myhttprequest = tornado.httpclient.HTTPRequest(searchurl, method='GET')
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
@@ -87,7 +87,7 @@ class Handler(tornado.web.RequestHandler):
 					  "price":pris,
 					  "currency":"SEK",
 					  "validPrice":True,
-					  "url":"http://sl.se/#/Travel/SearchTravelById/null/null/"+self.get_argument('from')+"/"+self.get_argument('to')+"/"+self.get_argument('date')+"%2520"+self.get_argument('departureTime').replace(":","_")+"/depart/sv/null/null/null/null/null/null/null/null/false/null/0",
+					  "url":"http://sl.se/#/Travel/SearchTravelById/null/null/"+self.fromid+"/"+self.toid+"/"+self.get_argument('date')+"%2520"+self.get_argument('departureTime').replace(":","_")+"/depart/sv/null/null/null/null/null/null/null/null/false/null/0",
 					  "departureTime":self.get_argument('departureTime'),
 					  "arrivalTime":self.get_argument('arrivalTime'),
 					  "date":self.get_argument('date'),
