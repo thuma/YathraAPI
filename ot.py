@@ -3,10 +3,6 @@
 
 import tornado.httpclient
 import json
-import time
-
-from bs4 import BeautifulSoup
-
 
 http_client = tornado.httpclient.HTTPClient()
 try:
@@ -79,29 +75,32 @@ class Handler(tornado.web.RequestHandler):
 		query = {}
 		query['start'] = fromstring
 		query['end'] = tostring
-		query['date'] = self.get_argument('date')+' '+self.get_argument('departureTime') 
+		query['date'] = self.get_argument('date')+'+'+self.get_argument('departureTime') 
 		query['direction'] = '0' 
 		query['span'] = 'default'
-		query['traffictype'] = ''
-		query['changetime'] = ''
-		query['priority'] = ''
-		query['walk'] = ''
+		query['traffictype'] = '63'
+		query['changetime'] = '0'
+		query['priority'] = '0'
+		query['walk'] = 'false'
 		self.url = 'http://www.ostgotatrafiken.se'
 
 		headdata = {}
-		headdata['Content-Type'] = 'application/json; charset=UTF-8'
+		headdata['Content-Type'] = 'application/json; charset=UTF-8' 
+		getstring = '?'
+		
+		for key in query:
+		    getstring += key + '=' + query[key] + '&'
 
-		self.myhttprequest = tornado.httpclient.HTTPRequest('http://www.ostgotatrafiken.se/rest/TravelHelperWebService.asmx/FindJourney', method='POST', headers=headdata, body=json.dumps(query)) 
+		self.myhttprequest = tornado.httpclient.HTTPRequest('http://www.ostgotatrafiken.se/ajax/Journey/Find'+getstring, method='GET', headers=headdata)
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
 
 	def searchdone(self, response):
 		global cache
 		
 		trips = json.loads(response.body)
-		trips = trips['d']
 
 		for trip in trips:
-			cache[time.strftime("%Y-%m-%d",time.localtime(float(trip['Departure'][6:-5])))+self.get_argument('from')+self.get_argument('to')+trip['strDeparture']+trip['strArrival']] = trip
+			cache[trip['Departure'][:10]+self.get_argument('from')+self.get_argument('to')+trip['strDeparture']+trip['strArrival']] = trip
 			
 		try:
 			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
