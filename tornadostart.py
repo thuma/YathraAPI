@@ -23,6 +23,7 @@ import at
 import vt
 import nsb
 import os
+import sl
 
 settings = {
     "static_path": os.getcwd()+"/static"
@@ -65,8 +66,10 @@ application = tornado.web.Application([
     (r"/at/cache/", at.CachePrint),
     (r"/vt/", vt.Handler),
     (r"/vt/cache/", vt.CachePrint),
-	(r"/nsb/", nsb.Handler),
+    (r"/nsb/", nsb.Handler),
     (r"/nsb/cache/", nsb.CachePrint),
+    (r"/sl/", sl.Handler),
+    (r"/sl/cache/", sl.CachePrint),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
 

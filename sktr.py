@@ -125,6 +125,8 @@ class Handler(tornado.web.RequestHandler):
 			"validPrice":True,
 			"url":"http://www.skanetrafiken.se"
 			}
+		# Future URL: http://thuma.github.io/gettopost.html#http://www.reseplaneraren.skanetrafiken.se/querypage_adv.aspx?language=sv&&&cmdAction=search&EU_Spirit=false&SupportsScript=true&LiteMode=true&inpPointFr=Varberg++%5BH%E5llplats%5D&inpPointFr_ajax=Varberg%7C13042%7C0&inpPointTo=G%F6teborg+C++%5BH%E5llplats%5D&inpPointTo_ajax=G%F6teborg+C%7C95006%7C0&selDirection=0&inpTime=0617&inpDate=141002
+
 		
 		outdata['departureTime'] = self.get_argument('departureTime')
 		outdata['arrivalTime'] = self.get_argument('arrivalTime')

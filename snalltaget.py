@@ -83,16 +83,20 @@ class Handler(tornado.web.RequestHandler):
 							'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36',
 							'Accept-Encoding': 'gzip,deflate,sdch',
 							'Accept-Language': 'sv-SE,sv;q=0.8,en-US;q=0.6,en;q=0.4'})
-	
-		self.request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/boka-biljett", method='GET', follow_redirects=True, max_redirects=3, request_timeout=4.0,headers=headers)
+
+		self.request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/boka-biljett", method='GET', follow_redirects=True, max_redirects=3, request_timeout=4.0,headers=headers, validate_cert=False)
 		self.http_client.fetch(self.request_setup, self.gotsession)
+		self.retry = 0
+		
 		
 	def gotsession(self,response):
-
+		
+		self.retry = self.retry + 1
 		try:
 			self.cookie = response.headers["set-cookie"].split(';')[0]
 		except:
-			self.http_client.fetch(self.request_setup, self.gotsession)
+			if self.retry > 2:
+			  self.http_client.fetch(self.request_setup, self.gotsession)
 			return 
 
 		header_setup = tornado.httputil.HTTPHeaders({'Accept':'application/json, text/plain, */*',
@@ -105,8 +109,8 @@ class Handler(tornado.web.RequestHandler):
 'Origin':'https://boka.snalltaget.se',
 'Referer':'https://boka.snalltaget.se/boka-biljett',
 'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36'})
-
-		request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/api/timetables", method='POST', headers=header_setup, body=json.dumps(self.query), follow_redirects=True, max_redirects=3)
+		
+		request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/api/timetables", method='POST', headers=header_setup, body=json.dumps(self.query), follow_redirects=True, max_redirects=3,validate_cert=False)
 		self.http_client.fetch(request_setup, self.gottrips)
 
 	def gottrips(self, response):
@@ -155,8 +159,8 @@ class Handler(tornado.web.RequestHandler):
 'Origin':'https://boka.snalltaget.se',
 'Referer':'https://boka.snalltaget.se/boka-biljett',
 'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/32.0.1700.107 Chrome/32.0.1700.107 Safari/537.36'})
-
-		request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/api/journeyadvices/lowestprices", method='POST',  body=json.dumps(pquery), headers=header_setup, follow_redirects=True, max_redirects=3)
+		
+		request_setup = tornado.httpclient.HTTPRequest("https://boka.snalltaget.se/api/journeyadvices/lowestprices", method='POST',  body=json.dumps(pquery), headers=header_setup, follow_redirects=True, max_redirects=3,validate_cert=False)
 		self.http_client.fetch(request_setup, self.gotprices)
 
 	def gotprices(self, response):
