@@ -33,7 +33,7 @@ application = tornado.web.Application([
     (r"/bt/", bt.Handler),
     (r"/bt/cache/", bt.CachePrint),
     (r"/sj/", sj.Handler),
-    (r"/sj/cache/", sj.CachePrint),
+    #(r"/sj/cache/", sj.CachePrint),
     (r"/hlt/", hlt.Handler),
     (r"/hlt/cache/", hlt.CachePrint),
     (r"/klt/", klt.Handler),
