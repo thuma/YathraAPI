@@ -45,7 +45,7 @@ class Handler(tornado.web.RequestHandler):
 		self.getfrom = 	self.get_argument('from')
 		self.gettime = self.get_argument('departureTime')
 		self.getto = self.get_argument('to')
-		self.gettotime self.get_argument('arrivalTime')
+		self.gettotime = self.get_argument('arrivalTime')
 		
 		
 		try:
