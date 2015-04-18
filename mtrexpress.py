@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 from __future__ import print_function
 from gevent.pywsgi import WSGIServer
 from gevent import monkey;
