@@ -31,7 +31,7 @@ def application(env, start_response):
         	return '{"error":"station not in netowrk"}'
         
         try:
-            cfile = open(getdata['from'][0]+getdata['to'][0]+getdata['date'][0]+'.json', 'r')
+            cfile = open('cache/mtr/'+getdata['from'][0]+getdata['to'][0]+getdata['date'][0], 'r')
             cjsondata = json.load(cfile)
             return output(getdata,cjsondata)
         except:
@@ -45,7 +45,7 @@ def application(env, start_response):
         data = '{"token":"'+token+'","amount":0,"net":0,"outbound":{"date":"'+getdata['date'][0]+'","origin_id":'+fromid+',"destination_id":'+toid+',"passengers":[{"passenger_type_id":1},{"passenger_type_id":4,"seat_type_id":1},{"passenger_type_id":3,"seat_type_id":1},{"passenger_type_id":6,"seat_type_id":1},{"passenger_type_id":2,"seat_type_id":1}],"addons":[]}}' 
         r = requests.post("http://www.mtrexpress.se/api/mtr/products", data=data, headers=headers)
         jsondata = r.json()
-        with open(getdata['from'][0]+getdata['to'][0]+getdata['date'][0]+'.json', 'w') as outfile:
+        with open('cache/mtr/'+getdata['from'][0]+getdata['to'][0]+getdata['date'][0], 'w') as outfile:
             json.dump(jsondata, outfile)
             
         return output(getdata,jsondata)
