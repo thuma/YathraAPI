@@ -93,8 +93,10 @@ class Handler(tornado.web.RequestHandler):
 			return None
 		
 		try:
-			self.returnrequest(cache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
+			jfile = open(("sjcache/"+self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime).replace(':',"").replace('-',""), 'r')
+			self.returnrequest(json.load(jfile))
 			return None
+			
 		except:
 			notfound = 1
 			
@@ -152,8 +154,6 @@ class Handler(tornado.web.RequestHandler):
 		self.trips = trips
 	
 	def gotprices (self, request):
-		global cache
-
 
 		try:
 			price =  tornado.escape.json_decode(request.body)
@@ -176,13 +176,15 @@ class Handler(tornado.web.RequestHandler):
 					datefrom = self.getdate
 					timefrom = trips[i]['departureTime']
 					timeto = trips[i]['arrivalTime']
-                                        cachekey = datefrom+stopfrom+timefrom+stopto+timeto
-					cache[cachekey] = trips[i]
-                                        tornado.ioloop.IOLoop.instance().add_timeout(time.time()+3600*8, partial(remove_key,cachekey))
+					cachekey = ("sjcache/"+datefrom+stopfrom+timefrom+stopto+timeto).replace(':',"").replace('-',"")
+					trip = trips[i]
+					with open(cachekey, 'w') as f:
+						json.dump(trip, f)
 					break
 		
 		try:
-			self.returnrequest(cache[self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime])
+			jfile = open(("sjcache/"+self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime).replace(':',"").replace('-',""), 'r')
+			self.returnrequest(json.load(jfile))
 
 		except:
 			self.returnerror('Trip not found in search')
