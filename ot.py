@@ -3,6 +3,7 @@
 
 import tornado.httpclient
 import json
+import cache
 
 http_client = tornado.httpclient.HTTPClient()
 try:
@@ -11,7 +12,6 @@ try:
 except tornado.httpclient.HTTPError as e:
     print "Error:", e
 http_client.close()
-cache = {}
 stops = {}
 list_data = list_data.split('\n')
 
@@ -27,14 +27,12 @@ for row in list_data:
 
 class CachePrint(tornado.web.RequestHandler):
 	def get(self):
-		global cache
-		self.write(cache)
+		self.write('{"none":"none"}')
 
 class Handler(tornado.web.RequestHandler):
 
 	@tornado.web.asynchronous
 	def get(self):
-		global cache
 		global stops
 		try:
 			fromstring = stops[self.get_argument('from')]['id']
@@ -43,9 +41,15 @@ class Handler(tornado.web.RequestHandler):
 			self.write({'error':'from/to station not in network'})
 			self.finish()
 			return
-
+		self.getdate = self.get_argument('date')
+		self.getfrom = 	self.get_argument('from')
+		self.gettime = self.get_argument('departureTime')
+		self.getto = self.get_argument('to')
+		self.gettotime self.get_argument('arrivalTime')
+		
+		
 		try:
-			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			price = cache.get('ot', self)
 			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
 				"sellername":"Östgötatr.",
@@ -100,10 +104,16 @@ class Handler(tornado.web.RequestHandler):
 		trips = json.loads(response.body)
 
 		for trip in trips:
-			cache[trip['Departure'][:10]+self.get_argument('from')+self.get_argument('to')+trip['strDeparture']+trip['strArrival']] = trip
-			
+			data = Empty()
+			data.getdate = trip['Departure'][:10]
+			data.getfrom = self.getfrom 
+			data.gettime = trip['strDeparture']
+			data.getto = self.getto
+			data.gettotime = trip['strArrival']
+			price = cache.store('ot', data, trip)
+
 		try:
-			price = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')+self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+			price = cache.get('ot', self)
 			outdata = {"travelerAge":35,	
 				"travelerIsStudent":False,
 				"sellername":"Östgötatr.",

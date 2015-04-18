@@ -59,7 +59,7 @@ application = tornado.web.Application([
     (r"/sktr/", sktr.Handler),
     (r"/sktr/cache/", sktr.CachePrint),
     (r"/ot/", ot.Handler),
-    (r"/ot/cache/", ot.CachePrint),
+    #(r"/ot/cache/", ot.CachePrint),
     (r"/tib/", tib.Handler),
     (r"/tib/cache/", tib.CachePrint),
     (r"/at/", at.Handler),
