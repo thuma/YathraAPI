@@ -5,9 +5,8 @@ import tornado.httputil
 import tornado.escape
 import tornado.ioloop
 import time
+import cache
 from functools import partial
-
-cache = {}
 
 stops = open('snalltaget.json')
 stops = json.load(stops)
@@ -16,15 +15,8 @@ for stop in stops['stops']:
 	stopsa[str(stop['P']*100000+stop['L'])] = stop['N']
 stops = {}
 
-
-def remove_key(key):
-    global cache
-    del cache[key]
-
-class CachePrint(tornado.web.RequestHandler):
-	def get(self):
-		global cache
-		self.write(cache)
+class Empty:
+    pass
 
 class Handler(tornado.web.RequestHandler):
 	cookie = ''
@@ -56,7 +48,6 @@ class Handler(tornado.web.RequestHandler):
 		
 	@tornado.web.asynchronous
 	def get(self):
-		global cache
 		global stopsa
 		self.searchdata = ''
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
@@ -93,8 +84,7 @@ class Handler(tornado.web.RequestHandler):
 			return None
 		
 		try:
-			jfile = open(("sjcache/"+self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime).replace(':',"").replace('-',""), 'r')
-			self.returnrequest(json.load(jfile))
+			self.returnrequest(cache.get("sj",self))
 			return None
 			
 		except:
@@ -171,20 +161,17 @@ class Handler(tornado.web.RequestHandler):
 					trips[i]['departureDate'] = self.getdate
 					trips[i]['departureLocation'] = self.getfrom
 					trips[i]['arrivalLocation'] = self.getto
-					stopfrom = self.getfrom 
-					stopto = self.getto
-					datefrom = self.getdate
-					timefrom = trips[i]['departureTime']
-					timeto = trips[i]['arrivalTime']
-					cachekey = ("sjcache/"+datefrom+stopfrom+timefrom+stopto+timeto).replace(':',"").replace('-',"")
-					trip = trips[i]
-					with open(cachekey, 'w') as f:
-						json.dump(trip, f)
+					data = Empty()
+					data.getdate = self.getdate
+					data.getfrom = self.getfrom 
+					data.gettime = trips[i]['departureTime']
+					data.getto = self.getto
+					data.gettotime = trips[i]['arrivalTime']
+					cache.store('sj', data, trips[i])
 					break
 		
 		try:
-			jfile = open(("sjcache/"+self.getdate+self.getfrom+self.gettime+self.getto+self.gettotime).replace(':',"").replace('-',""), 'r')
-			self.returnrequest(json.load(jfile))
+			self.returnrequest(cache.get("sj",self))
 
 		except:
 			self.returnerror('Trip not found in search')
