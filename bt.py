@@ -74,6 +74,10 @@ class Handler(tornado.web.RequestHandler):
 				trip = {}
 				trip['1stkl'] = resdelar[2].split('_')[1].replace(':',"").replace('-','')
 				trip['2ndkl'] = resdelar[3].split('_')[1].replace(':',"").replace('-','')
+				try:
+					trip['3ndkl'] = resdelar[4].split('_')[1].replace(':',"").replace('-','')
+				except:
+					trip['3ndkl'] = 99999
 				cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')][dep+arr] = trip
 				 										
 		except:
@@ -118,11 +122,18 @@ class Handler(tornado.web.RequestHandler):
 			ndkl = int(trip['2ndkl'])
 		except:
 			ndkl = 99999
+		
+		try:
+			gkl = int(trip['3ndkl'])
+		except:
+			gkl = 99999
 			
 		if stkl < ndkl:
 			outdata['price'] = stkl
 		else:
 			outdata['price'] = ndkl
+		if outdata['price'] > gkl:
+			outdata['price'] = gkl
 		
 		if outdata['price'] == 99999:
 			self.write({'Error':'Sould out'})
