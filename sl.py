@@ -1,103 +1,82 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
+from gevent import monkey;
+monkey.patch_all()
+import requests
 import json
-import tornado.httpclient
+import urlparse
 
-http_client = tornado.httpclient.HTTPClient()
-try:
-    response = http_client.fetch('https://github.com/thuma/Transit-Stop-Identifier-Conversions-Sweden/raw/master/sl-gtfs.csv')
-    list_data = response.body
-except httpclient.HTTPError as e:
-    print "Error:", e
-http_client.close()
+stations = {}
+stationsget = requests.get('https://api.trafiklab.se/samtrafiken/gtfs/extra/agency_stops_275.txt?key=b4141ff657cfdd05df923ac21c057286')
+stationscsv = stationsget.text.split("\n")
 
-cache = {}
-stops = {}
+for row in stationscsv:
+    try:
+        parts = row.strip().split(",")
+        stations[parts[1]] = {"StopPointNumber":parts[2]}
+    except:
+        pass
 
-list_data = list_data.split('\n')
-for row in list_data:
-	try:
-		parts = row.split(';')
-		stops[parts[1]] = parts[0]
-	except:
-		parts = ''
+stationsget = requests.get('http://api.sl.se/api2/LineData.json?model=StopPoint&key=0a28edfd9e8e49bf87c5ba27131ddb6a')
 
-list_data = ''
+stoppoints = stationsget.json()["ResponseData"]["Result"]
+points = {}
+stationsget = ""
 
-file = open('../sl.key', 'r')
-key = file.readline().strip()
-file.close()
+for point in stoppoints: 
+    points[point["StopPointNumber"]] = point
 
-class CachePrint(tornado.web.RequestHandler):
-	def get(self):
-		global cache
-		self.write(cache)
+stoppoints = {}
 
-class Handler(tornado.web.RequestHandler):
+for station in stations:
+    try:
+        stations[station]["Zone"] = (points[stations[station]["StopPointNumber"]]["ZoneShortName"])
+    except:
+        # Print missing data:
+        print (stations[station])
 
-	@tornado.web.asynchronous
-	def get(self):
-		self.http_client = tornado.httpclient.AsyncHTTPClient()
-		global cache
-		global stops
-		global key
-		
-		try:
-			self.fromid = stops[self.get_argument('from')]
-			self.toid = stops[self.get_argument('to')]
-		except:
-			self.write({'error':'from/to station not in network'})
-			self.finish()
-			return
-		      
-		try:
-			date = self.get_argument('date').split('-')
-			date = date[2]+'.'+date[1]+'.'+date[0]
-		except:
-			self.write({'error':'date error should be YYYY-MM-DD'})
-			self.finish()
-			return
+points = {}
 
-		searchurl = 'https://api.trafiklab.se/sl/reseplanerare.json?key='+key+'&Date='+date+'&S='+self.fromid+'&Z='+self.toid+'&time='+self.get_argument('departureTime')
-	
-		self.myhttprequest = tornado.httpclient.HTTPRequest(searchurl, method='GET')
-		self.http_client.fetch(self.myhttprequest, self.searchdone)
+def findprice(env, start_response):
+    global stations
+    start_response('200 OK', [('Content-Type', 'application/json')])
+    getdata = urlparse.parse_qs(env['QUERY_STRING'])
+    headers = {'content-type': 'application/json'}
+    try:
+        fromz  = stations[getdata['from'][0]]["Zone"]
+        toz = stations[getdata['to'][0]]["Zone"]
+    
+    except:
+        return '{"error":"station not in netowrk"}'
+    
+    if fromz == toz:
+       price = 25
+    elif fromz == "A" and toz == "C":
+       price = 50
+    elif fromz == "C" and toz == "A":
+       price = 50
+    elif fromz == B or toz == B:
+       price = 37.5
 
-	def searchdone(self, response):
-		http_client = tornado.httpclient.HTTPClient()
-		
-		alldata = tornado.escape.json_decode(unicode(response.body, 'latin-1'))
-
-		for trip in alldata['HafasResponse']['Trip']:
-			if trip['Summary']['DepartureTime']['#text'] == self.get_argument('departureTime'):
-				
-				pris = '125'
-				if trip['Summary']['PriceInfo']['TariffZones'] == 'A':
-				  pris = '25'
-				elif trip['Summary']['PriceInfo']['TariffZones'] == 'AB':
-				  pris = '37,5'
-				elif trip['Summary']['PriceInfo']['TariffZones'] == 'ABC':
-				  pris = '50'
-				  
-				outdata = {
-					  "travelerAge":35,	
-					  "travelerIsStudent":False,
-					  "sellername":"SL",
-					  "price":pris,
-					  "currency":"SEK",
-					  "validPrice":True,
-					  "url":"http://sl.se/#/Travel/SearchTravelById/null/null/"+self.fromid+"/"+self.toid+"/"+self.get_argument('date')+"%2520"+self.get_argument('departureTime').replace(":","_")+"/depart/sv/null/null/null/null/null/null/null/null/false/null/0",
-					  "departureTime":self.get_argument('departureTime'),
-					  "arrivalTime":self.get_argument('arrivalTime'),
-					  "date":self.get_argument('date'),
-					  "from":self.get_argument('from'),
-					  "to":self.get_argument('to')
-					  }
-				self.write(outdata)
-				self.finish()
-				return
-			
-		self.write({'error':'no trip found'})
-		self.finish()
-		return
+    pricedata = {
+       	       "departureTime":getdata['departureTime'][0],
+		       "arrivalTime":getdata['arrivalTime'][0],
+		       "date":getdata['date'][0],
+		       "from":getdata['from'][0],
+		       "to":getdata['to'][0],
+       	       "travelerAge":35,
+		       "travelerIsStudent":False,
+		       "sellername":"SL",
+		       "price":price,
+		       "currency":"SEK",
+		       "validPrice":True,
+		       "url":"https://sl.se/sv/kop-biljett/#/reskassa"
+    }
+    
+    return json.dumps(pricedata)
+        
