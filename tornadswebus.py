@@ -13,7 +13,7 @@ print 'Loading id lists...'
 #import mas
 #import snalltaget
 #import sj
-import swebus
+import svenskabuss
 import os
 
 settings = {
@@ -41,8 +41,8 @@ application = tornado.web.Application([
     #(r"/xtr/cache/", xtr.CachePrint),    
     #(r"/snalltaget/", snalltaget.Handler),
     #(r"/snalltaget/cache/", snalltaget.CachePrint),
-    (r"/swebus/", swebus.Handler),
-    (r"/swebus/cache/", swebus.CachePrint),
+    (r"/svenskabuss/", svenskabuss.Handler),
+    #(r"/swebus/cache/", swebus.CachePrint),
     (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.getcwd()+'/static'})
 ], **settings)
 
