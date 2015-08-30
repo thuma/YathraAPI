@@ -70,8 +70,10 @@ def findprice(env, start_response):
        price = 50
     elif fromz == "C" and toz == "A":
        price = 50
-    elif fromz == B or toz == B:
+    elif fromz == "B" or toz == "B":
        price = 37.5
+    else:
+       price = 50
 
     pricedata = {
        	       "departureTime":getdata['departureTime'][0],
