@@ -66,7 +66,7 @@ def findprice(env, start_response):
     
     if fromz == "A" and toz == "A":
        price = 25
-    if fromz == toz and fromn == ton:
+    elif fromz == toz and fromn == ton:
        price = 25
     elif fromz == "A" and toz == "C":
        price = 50
