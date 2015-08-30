@@ -64,7 +64,7 @@ def findprice(env, start_response):
     except:
         return '{"error":"station not in netowrk"}'
     
-    if fromz == "A" and toz == "":
+    if fromz == "A" and toz == "A":
        price = 25
     if fromz == toz and fromn == ton:
        price = 25
