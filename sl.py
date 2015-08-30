@@ -37,12 +37,12 @@ for station in stations:
     try:
         stations[station]["Zone"] = points[stations[station]["StopPointNumber"]]["ZoneShortName"]
         if points[stations[station]["StopPointNumber"]]["LocationNorthingCoordinate"] > 59.2981056:
-            stations[station]["N"] == "yes"
+            stations[station]["N"] = "yes"
         else:
-            stations[station]["N"] == "no"
+            stations[station]["N"] = "no"
     except:
         # Print missing data:
-        print (stations[station])
+        print(stations[station])
 
 points = {}
 
