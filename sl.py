@@ -35,7 +35,11 @@ stoppoints = {}
 
 for station in stations:
     try:
-        stations[station]["Zone"] = (points[stations[station]["StopPointNumber"]]["ZoneShortName"])
+        stations[station]["Zone"] = points[stations[station]["StopPointNumber"]]["ZoneShortName"]
+        if points[stations[station]["StopPointNumber"]]["LocationNorthingCoordinate"] > 59.2981056:
+            stations[station]["N"] == "yes"
+        else:
+            stations[station]["N"] == "no"
     except:
         # Print missing data:
         print (stations[station])
@@ -49,12 +53,14 @@ def findprice(env, start_response):
     headers = {'content-type': 'application/json'}
     try:
         fromz  = stations[getdata['from'][0]]["Zone"]
+        fromn  = stations[getdata['from'][0]]["N"]
         toz = stations[getdata['to'][0]]["Zone"]
+        ton = stations[getdata['to'][0]]["N"]
     
     except:
         return '{"error":"station not in netowrk"}'
     
-    if fromz == toz:
+    if fromz == toz and fromn == ton:
        price = 25
     elif fromz == "A" and toz == "C":
        price = 50
