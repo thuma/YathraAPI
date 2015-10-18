@@ -29,6 +29,13 @@ class CachePrint(tornado.web.RequestHandler):
 	def get(self):
 		self.write('{"none":"none"}')
 
+class Empty():
+     getdate = ''
+     getfrom = ''
+     gettime = ''
+     getto = ''
+     gettotime = ''
+
 class Handler(tornado.web.RequestHandler):
 
 	@tornado.web.asynchronous
@@ -77,12 +84,16 @@ class Handler(tornado.web.RequestHandler):
 		self.http_client = tornado.httpclient.AsyncHTTPClient()
 		# Generate search object.
 		query = {}
-		query['start'] = fromstring
-		query['end'] = tostring
+		query['startId'] = fromstring
+		query['endId'] = tostring
+                query['startType'] = 'stop'
+                query['endType'] = 'stop' 
+                query['startLl'] = '58.417065%2C15.624088'
+                query['endLl'] = '58.417065%2C15.624088'
 		query['date'] = self.get_argument('date')+'+'+self.get_argument('departureTime') 
 		query['direction'] = '0' 
 		query['span'] = 'default'
-		query['traffictype'] = '63'
+		query['traffictype'] = '127'
 		query['changetime'] = '0'
 		query['priority'] = '0'
 		query['walk'] = 'false'
@@ -94,7 +105,7 @@ class Handler(tornado.web.RequestHandler):
 		
 		for key in query:
 		    getstring += key + '=' + query[key] + '&'
-
+                 
 		self.myhttprequest = tornado.httpclient.HTTPRequest('http://www.ostgotatrafiken.se/ajax/Journey/Find'+getstring, method='GET', headers=headdata)
 		self.http_client.fetch(self.myhttprequest, self.searchdone)
 
@@ -102,14 +113,15 @@ class Handler(tornado.web.RequestHandler):
 		global cache
 		
 		trips = json.loads(response.body)
-
+                #print trips
+                
 		for trip in trips:
 			data = Empty()
 			data.getdate = trip['Departure'][:10]
 			data.getfrom = self.getfrom 
-			data.gettime = trip['strDeparture']
+			data.gettime = trip['Departure'][-8:-3]
 			data.getto = self.getto
-			data.gettotime = trip['strArrival']
+			data.gettotime = trip['Arrival'][-8:-3]
 			price = cache.store('ot', data, trip)
 
 		try:
