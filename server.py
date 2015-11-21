@@ -10,12 +10,15 @@ import json
 import urlparse
 import mtrexpress
 import sl
+import resrobot_oneday
 
 def application(env, start_response):
     if env['PATH_INFO'] == '/sl/':
         return sl.findprice(env, start_response)
     if env['PATH_INFO'] == '/mtr/':
         return mtrexpress.findprice(env, start_response)
+    if env['PATH_INFO'] == '/trip/':
+        return resrobot_oneday.get(env, start_response)
     else:
         start_response('404 Not Found', [('Content-Type', 'text/html')])
         return '<h1>Not Found</h1>'
