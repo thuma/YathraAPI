@@ -1,0 +1,64 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_lang
+74,SJ,http://www.sj.se,Europe/Stockholm,sv
+76,NSB,http://www.nsb.no,Europe/Stockholm,sv
+229,NSB/SJ,http://www.sj.se,Europe/Stockholm,sv
+248,Visingsötrafiken,http://www.visingso.net/visingsotrafiken/,Europe/Stockholm,sv
+249,Kosterbåtarna,http://resrobot.se,Europe/Stockholm,sv
+251,UL,http://www.ul.se,Europe/Stockholm,sv
+252,Länstrafiken Sörmland,http://www.lanstrafiken.se/sormland,Europe/Stockholm,sv
+253,Östgötatrafiken,http://www.ostgotatrafiken.se,Europe/Stockholm,sv
+254,Länstrafiken,http://www.jlt.se,Europe/Stockholm,sv
+255,Länstrafiken,http://www.lanstrafikenkron.se,Europe/Stockholm,sv
+256,KLT,http://www.klt.se,Europe/Stockholm,sv
+257,Gotlands kommun,http://www.gotland.se/kollektivtrafiken,Europe/Stockholm,sv
+258,Blekingetrafik,http://www.blekingetrafiken.se/,Europe/Stockholm,sv
+261,Hallandstrafiken,http://www.hlt.se/,Europe/Stockholm,sv
+265,Värmlandstrafik,http://www.varmlandstrafik.se/,Europe/Stockholm,sv
+266,VL,http://www.vl.se/,Europe/Stockholm,sv
+267,Dalatrafik,http://www.dalatrafik.se/,Europe/Stockholm,sv
+268,X-trafik,http://www.x-trafik.se/,Europe/Stockholm,sv
+269,Länstrafiken,http://data.resrobot.se/pages/showpage.jsp?page_cd=RP2.NORRLANDINFO,Europe/Stockholm,sv
+270,Destination Gotland,http://www.destinationgotland.se/,Europe/Stockholm,sv
+275,SL,http://www.sl.se/,Europe/Stockholm,sv
+276,Skånetrafiken,http://www.skanetrafiken.se,Europe/Stockholm,sv
+277,Flygbussarna,http://www.flygbussarna.se,Europe/Stockholm,sv
+279,Västtrafik,http://www.vasttrafik.se/,Europe/Stockholm,sv
+286,Ven-trafiken,http://resrobot.se,Europe/Stockholm,sv
+287,Arlanda Express,http://www.arlandaexpress.com,Europe/Stockholm,sv
+289,Länstrafiken,http://www.lanstrafiken.se/orebro,Europe/Stockholm,sv
+300,Öresundståg,http://www.oresundstag.se/,Europe/Stockholm,sv
+315,Tågkompaniet,http://www.tagkompaniet.se/,Europe/Stockholm,sv
+320,Waxholmsbolaget,http://www.waxholmsbolaget.se/,Europe/Stockholm,sv
+327,Bus4You,http://www.bus4you.se/,Europe/Stockholm,sv
+328,Nettbuss express,http://www.gobybus.se/,Europe/Stockholm,sv
+357,Y-buss,http://www.ybuss.se/,Europe/Stockholm,sv
+370,Scand Lines,http://www.scandlines.se/,Europe/Stockholm,sv
+380,Veolia Transport,http://www.veolia-transport.se,Europe/Stockholm,sv
+429,Trafikverket FR,http://resrobot.se,Europe/Stockholm,sv
+584,ÖSlJ,http://resrobot.se,Europe/Stockholm,sv
+586,Tågab,http://www.tagakeriet.se,Europe/Stockholm,sv
+601,Karlstadsbuss,http://karlstad.se/karlstadsbuss/,Europe/Stockholm,sv
+602,Luleå Lokaltrafik,http://resrobot.se,Europe/Stockholm,sv
+604,Trosabussen,http://www.trosabussen.se,Europe/Stockholm,sv
+612,Tågab,http://resrobot.se,Europe/Stockholm,sv
+613,Tågab tågtaxi,http://resrobot.se,Europe/Stockholm,sv
+618,Ressels Rederi,http://resrobot.se,Europe/Stockholm,sv
+619,Blå Tåget,http://resrobot.se,Europe/Stockholm,sv
+361,Mas-Expressen AB,http://resrobot.se,Europe/Stockholm,sv
+621,Mas-Expressen AB,http://resrobot.se,Europe/Stockholm,sv
+630,People Travel Group,http://resrobot.se,Europe/Stockholm,sv
+632,Roslagens Sjötrafik,http://resrobot.se,Europe/Stockholm,sv
+633,Nobina Sverige,http://resrobot.se,Europe/Stockholm,sv
+635,Piteå Lokaltrafik,http://resrobot.se,Europe/Stockholm,sv
+647,Stadsbussarna Östersund,http://resrobot.se,Europe/Stockholm,sv
+653,Kustpilen,http://resrobot.se,Europe/Stockholm,sv
+690,Swebus,http://www.swebus.se,Europe/Stockholm,sv
+694,Norrtåg,http://resrobot.se,Europe/Stockholm,sv
+806,Nordlandsbussen,http://resrobot.se,Europe/Stockholm,sv
+807,IKEA,http://resrobot.se,Europe/Stockholm,sv
+809,Nilsbuss,http://resrobot.se,Europe/Stockholm,sv
+812,MTR Express,http://www.mtrexpress.se/,Europe/Stockholm,sv
+815,Travelshop,http://resrobot.se,Europe/Stockholm,sv
+821,Söne Buss,http://resrobot.se,Europe/Stockholm,sv
+822,Trossöbuss AB,http://resrobot.se,Europe/Stockholm,sv
+825,Shuttlebuss,http://resrobot.se,Europe/Stockholm,sv
