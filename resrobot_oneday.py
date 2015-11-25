@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import gevent
+from gevent import Greenlet
+from gevent import monkey;
+monkey.patch_all()
 import requests
 import sys
 import urllib
 import json
-import gevent
-from gevent import Greenlet
+import time
+import urlparse
+
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -33,6 +38,7 @@ sellers["SL"]         = "http://127.0.0.1:8088/sl/?"
 sellers["SVBU"]     = "http://127.0.0.1:8800/svenskabuss/?"
 sellers["MTR"]        = "http://127.0.0.1:8088/mtr/?"
 
+running = {}
 
 def getprice(apiurl, pricequery):
     try:
@@ -45,108 +51,133 @@ def getprice(apiurl, pricequery):
 def pricerequest(pricequery):
     global sellers
     prices = {}
-
+    
     pricerequests = {}
     for seller in sellers:
         pricerequests[seller] = Greenlet.spawn(getprice, sellers[seller] ,pricequery)
     
     for seller in pricerequests:
-        print "wait:" + seller
         pricerequests[seller].join()
         if pricerequests[seller].successful():
-            print seller
             prices[seller] = pricerequests[seller].value
 
     return prices
 
 def get(env, start_response):
+    getdata = urlparse.parse_qs(env['QUERY_STRING'])
+    fromid = getdata['from'][0]
+    toid = getdata['to'][0]
+    date = getdata['date'][0]
+    tripno = int(getdata['tripno'][0])
+    
+    combined = fromid+toid+date
+    
+    while combined in running:
+        time.sleep(1)
+    
+    try: 
+        with open('cache/trips/'+fromid+toid+date+str(tripno), 'r') as data_file:   
+            start_response('200 OK', [('Content-Type', 'application/json')])
+            return data_file.read()
+    except:
+        print "Detailed cached failed"
+        
+    try:
+        with open('cache/trips/'+fromid+toid+date) as data_file:    
+            trips = json.load(data_file)
+            start_response('200 OK', [('Content-Type', 'application/json')])
+            print "found in cache"
+            
+    except:
+        running[combined] = True
+        print "not in cache" 
+        url = 'https://api.resrobot.se/trip?'
+        trips = {'Trip':[]}
 
-    fromid = '7400001'
-    toid = '7400002'
-    startdate = '2015-11-23'
-    starttime = '00:00'
-    enddate = '2015-11-23'
-    endtime = '24:00'
-
-    url = 'https://api.resrobot.se/trip?'
-    trips = {'Trip':[]}
-
-    query = {
+        query = {
         'key': '886e3586-3fe5-4376-90ff-8817161a48cb',
         'originId': fromid,
         'destId': toid,
-        'date': startdate,
-        'time': starttime,
+        'date': date,
+        'time': '00:00',
         'numB':'0',
         'format':'json'}
     
-    row = 0
-    notfull = True
-    while notfull:
-        r = requests.get(url+urllib.urlencode(query))
-        data = r.json()
+        row = 0
+        notfull = True
         
-        for trip in data['Trip']:
-            if trip['LegList']['Leg'][0]['Origin']['date'] == date:
-                trip['idx'] = row
-                trip['tripId'] = 'C-' + str(trip['idx'])
-
-                if trip['LegList']['Leg'][-1]['type'] == 'WALK':
-                    del trip['LegList']['Leg'][-1]
-
-                if trip['LegList']['Leg'][0]['type'] == 'WALK':
-                    del trip['LegList']['Leg'][0]
-            
-                if len(trip['LegList']['Leg']) != 1:
-                    trip['price'] = {"url":urllib.urlencode({
-                        'from':trip['LegList']['Leg'][0]['Origin']['id'],
-                        'to':trip['LegList']['Leg'][-1]['Destination']['id'],
-                        'date':trip['LegList']['Leg'][0]['Origin']['date'],
-                        'departureDate':trip['LegList']['Leg'][0]['Origin']['date'],
-                        'departureTime':trip['LegList']['Leg'][0]['Origin']['time'][0:5],
-                        'arrivalDate':trip['LegList']['Leg'][-1]['Destination']['date'],
-                        'arrivalTime':trip['LegList']['Leg'][-1]['Destination']['time'][0:5]
-                        })
-                        }
-                    print trip['price']['url']
-                    trip['price']['list'] =  pricerequest(trip['price']['url'])
-                
-                
-                for i in range(len(trip['LegList']['Leg'])):
-                    tripinfo = trip['LegList']['Leg'][i]
-                    stops = []
-                    if 'Stops' in tripinfo:
-                        for stop in tripinfo['Stops']['Stop']:
-                            stops.append(stop['id'])
-                    trip['LegList']['Leg'][i]['price'] = {"url":urllib.urlencode({
-                        'from':tripinfo['Origin']['id'],
-                        'to':tripinfo['Destination']['id'],
-                        'date':tripinfo['Origin']['date'],
-                        'departureDate':tripinfo['Origin']['date'],
-                        'departureTime':tripinfo['Origin']['time'][0:5],
-                        'arrivalDate':tripinfo['Destination']['date'],
-                        'arrivalTime':tripinfo['Destination']['time'][0:5],
-                        'stops': ','.join(stops)})
-                        }
-                
-                    print trip['LegList']['Leg'][i]['price']['url']
-                    trip['LegList']['Leg'][i]['price']['list'] =  pricerequest(
-                        trip['LegList']['Leg'][i]['price']['url']
-                        )
-            
-                #Print one trip at the time here:
-                trips['Trip'].append(trip)
-                print json.dumps(trip)
-            
-            else:
-                notfull = False
-                break 
-            row = row + 1 
-        query['context'] = data['scrF']
+        while notfull:
+            r = requests.get(url+urllib.urlencode(query))
+            data = r.json()
         
+            for trip in data['Trip']:
+                if trip['LegList']['Leg'][0]['Origin']['date'] == date:
+                    trip['idx'] = row
+                    trip['tripId'] = 'C-' + str(trip['idx'])
+
+                    if trip['LegList']['Leg'][-1]['type'] == 'WALK':
+                        del trip['LegList']['Leg'][-1]
+
+                    if trip['LegList']['Leg'][0]['type'] == 'WALK':
+                        del trip['LegList']['Leg'][0]
+            
+                    if len(trip['LegList']['Leg']) != 1:
+                        trip['price'] = {"url":urllib.urlencode({
+                            'from':trip['LegList']['Leg'][0]['Origin']['id'],
+                            'to':trip['LegList']['Leg'][-1]['Destination']['id'],
+                            'date':trip['LegList']['Leg'][0]['Origin']['date'],
+                            'departureDate':trip['LegList']['Leg'][0]['Origin']['date'],
+                            'departureTime':trip['LegList']['Leg'][0]['Origin']['time'][0:5],
+                            'arrivalDate':trip['LegList']['Leg'][-1]['Destination']['date'],
+                            'arrivalTime':trip['LegList']['Leg'][-1]['Destination']['time'][0:5]
+                            })
+                            }
+                
+                    for i in range(len(trip['LegList']['Leg'])):
+                        tripinfo = trip['LegList']['Leg'][i]
+                        stops = []
+                        if 'Stops' in tripinfo:
+                            for stop in tripinfo['Stops']['Stop']:
+                                stops.append(stop['id'])
+                        trip['LegList']['Leg'][i]['price'] = {"url":urllib.urlencode({
+                            'from':tripinfo['Origin']['id'],
+                            'to':tripinfo['Destination']['id'],
+                            'date':tripinfo['Origin']['date'],
+                            'departureDate':tripinfo['Origin']['date'],
+                            'departureTime':tripinfo['Origin']['time'][0:5],
+                            'arrivalDate':tripinfo['Destination']['date'],
+                            'arrivalTime':tripinfo['Destination']['time'][0:5],
+                            'stops': ','.join(stops)})
+                            }
+                    trips['Trip'].append(trip)
+                else:
+                    with open('cache/trips/'+fromid+toid+date, 'w') as data_file:    
+                        json.dump(trips, data_file)
+                    notfull = False
+                    del(running[combined])
+                    break 
+                row = row + 1
+            query['context'] = data['scrF']
+    
+    
     start_response('200 OK', [('Content-Type', 'application/json')])
-    return json.dumps(trips)
+    try:
+        trip = trips['Trip'][tripno]
+    except:
+        return '{"Status":"end"}'
+    
+    if 'price' in trip:
+        print trip['price']
+        trip['price']['list'] = pricerequest(trip['price']['url'])
+    
+    for i in range(len(trip['LegList']['Leg'])):
+        print trip['LegList']['Leg'][i]['price']
+        trip['LegList']['Leg'][i]['price']['list'] = pricerequest(trip['LegList']['Leg'][i]['price']['url'])
+        
+    with open('cache/trips/'+fromid+toid+date+str(tripno), 'w') as data_file:    
+        json.dump(trip, data_file)
 
+    return json.dumps(trip)
 
 
 

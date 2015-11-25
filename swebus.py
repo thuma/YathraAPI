@@ -18,61 +18,61 @@ stops = {}
 list_data = list_data.split('\n')
 
 for row in list_data:
-	try:
-		parts = row.split(',')
-		stops[parts[0]] = {}
-		stops[parts[0]]['id'] = parts[2]
-		stops[parts[0]]['name'] = parts[3]
-	except:
-		parts = ''
+    try:
+        parts = row.split(',')
+        stops[parts[0]] = {}
+        stops[parts[0]]['id'] = parts[2]
+        stops[parts[0]]['name'] = parts[3]
+    except:
+        parts = ''
 
 class CachePrint(tornado.web.RequestHandler):
-	def get(self):
-		global cache
-		self.write(cache)
+    def get(self):
+        global cache
+        self.write(cache)
 
 class Handler(tornado.web.RequestHandler):
-	@tornado.web.asynchronous
-	def get(self):
-		global cache
-		global stops
-		
-		try:
-			pricea = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
-			price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
-			outdata = {"travelerAge":35,	
-				"travelerIsStudent":False,
-				"sellername":"Swebus",
-				"price":"",
-				"currency":"SEK",
-				"validPrice":True
-				}
-		
-			outdata['departureTime'] = self.get_argument('departureTime')
-			outdata['arrivalTime'] = self.get_argument('arrivalTime')
-			outdata['date'] = self.get_argument('date')
-			outdata['from'] = self.get_argument('from')
-			outdata['to'] = self.get_argument('to')
-			outdata['price'] = price['Price1']
-			outdata['validPrice'] = 1
-			outdata['url'] = pricea['url']
-	
-			self.write(outdata)
-			self.finish()
-			return
-		except:
-			try:
-				test = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
-				self.write('{"error":"No trip found"}')
-				self.finish()
-				return
-			except: 			
-				notfoundincache = 1	
-		
-		
-		self.http_client = tornado.httpclient.AsyncHTTPClient()
-		try:
-			self.url = 'http://www.swebus.se/Express/Sokresultat/\
+    @tornado.web.asynchronous
+    def get(self):
+        global cache
+        global stops
+        
+        try:
+            pricea = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
+            price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+            outdata = {"travelerAge":35,    
+                "travelerIsStudent":False,
+                "sellername":"Swebus",
+                "price":"",
+                "currency":"SEK",
+                "validPrice":True
+                }
+        
+            outdata['departureTime'] = self.get_argument('departureTime')
+            outdata['arrivalTime'] = self.get_argument('arrivalTime')
+            outdata['date'] = self.get_argument('date')
+            outdata['from'] = self.get_argument('from')
+            outdata['to'] = self.get_argument('to')
+            outdata['price'] = price['Price1']
+            outdata['validPrice'] = 1
+            outdata['url'] = pricea['url']
+    
+            self.write(outdata)
+            self.finish()
+            return
+        except:
+            try:
+                test = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
+                self.write('{"error":"No trip found"}')
+                self.finish()
+                return
+            except:             
+                notfoundincache = 1    
+        
+        
+        self.http_client = tornado.httpclient.AsyncHTTPClient()
+        try:
+            self.url = 'http://www.swebus.se/Express/Sokresultat/\
 ?from='+stops[self.get_argument('from')]['id']+'\
 &fromtype=BusStop\
 &to='+stops[self.get_argument('to')]['id']+'\
@@ -87,29 +87,30 @@ class Handler(tornado.web.RequestHandler):
 &campaignCode=\
 &id=1101\
 &epslanguage=sv-SE'
-			self.myhttprequest = tornado.httpclient.HTTPRequest(self.url) 
-			self.http_client.fetch(self.myhttprequest, self.searchdone)
-		except:
-			self.write({'error':'from/to station not in network'})
-			self.finish()
-			return
-		
-	def searchdone(self, response):
-		global cache
-		html_data = response.body
-		try:
-			html_data = BeautifulSoup(html_data)
-		except:
-			#self.http_client.fetch(self.myhttprequest, self.searchdone)
-			#return
-			end = 1
-		lista = html_data.find(id='bookingSearchResultsAway').findAll("div", { "class" : "Accordion" })
-		lista = lista[0].findAll("table") 
-		
-		mainkey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-		cache[mainkey] = {}
-		cache[mainkey]['url'] = self.url
-		for i in lista:
+            print self.url
+            self.myhttprequest = tornado.httpclient.HTTPRequest(self.url) 
+            self.http_client.fetch(self.myhttprequest, self.searchdone)
+        except:
+            self.write({'error':'from/to station not in network'})
+            self.finish()
+            return
+        
+    def searchdone(self, response):
+        global cache
+        html_data = response.body
+        try:
+            html_data = BeautifulSoup(html_data)
+        except:
+            #self.http_client.fetch(self.myhttprequest, self.searchdone)
+            #return
+            end = 1
+        lista = html_data.find(id='bookingSearchResultsAway').findAll("div", { "class" : "Accordion" })
+        lista = lista[0].findAll("table") 
+        
+        mainkey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
+        cache[mainkey] = {}
+        cache[mainkey]['url'] = self.url
+        for i in lista:
                     try:
                         data = {}
                         data['Departure'] = i.findAll("th", { "class" : "Departure" })[0].string.strip()
@@ -121,33 +122,33 @@ class Handler(tornado.web.RequestHandler):
                         cache[mainkey][data['Departure']+data['Arrival']] = data
                     except:
                         soldoutrow = 1
-            	
-                try:
-			pricea = cache[mainkey]
-			price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
-			outdata = {"travelerAge":35,	
-				"travelerIsStudent":False,
-				"sellername":"Swebus",
-				"price":"",
-				"currency":"SEK",
-				"validPrice":True
-				}
-		
-			outdata['departureTime'] = self.get_argument('departureTime')
-			outdata['arrivalTime'] = self.get_argument('arrivalTime')
-			outdata['date'] = self.get_argument('date')
-			outdata['from'] = self.get_argument('from')
-			outdata['to'] = self.get_argument('to')
-			outdata['price'] = int(price['Price1'].split(" ")[0])
-			outdata['validPrice'] = 1
-			outdata['url'] = pricea['url']
-	
-			self.write(outdata)
-			self.finish()
-			return
-		except:
-			notfoundincache = 1	
+                
+        try:
+            pricea = cache[mainkey]
+            price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
+            outdata = {"travelerAge":35,    
+                "travelerIsStudent":False,
+                "sellername":"Swebus",
+                "price":"",
+                "currency":"SEK",
+                "validPrice":True
+                }
+        
+            outdata['departureTime'] = self.get_argument('departureTime')
+            outdata['arrivalTime'] = self.get_argument('arrivalTime')
+            outdata['date'] = self.get_argument('date')
+            outdata['from'] = self.get_argument('from')
+            outdata['to'] = self.get_argument('to')
+            outdata['price'] = int(price['Price1'].split(" ")[0])
+            outdata['validPrice'] = 1
+            outdata['url'] = pricea['url']
+    
+            self.write(outdata)
+            self.finish()
+            return
+        except:
+            notfoundincache = 1    
                         
-                self.write('{"Error":"No trip found"}')
-                self.finish()
-		
+            self.write('{"Error":"No trip found"}')
+            self.finish()
+        

@@ -11,6 +11,7 @@ import btr
 import dtr
 import xtr
 import mas
+import svenskabuss
 import snalltaget
 import sj
 import swebus
@@ -23,8 +24,6 @@ import at
 import vt
 import nsb
 import os
-import sl
-import svenskabuss
 
 settings = {
     "static_path": os.getcwd()+"/static"
