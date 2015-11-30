@@ -112,14 +112,14 @@ def get(env, start_response):
         
             for trip in data['Trip']:
                 if trip['LegList']['Leg'][0]['Origin']['date'] == date:
+                    LegList = trip['LegList']['Leg']
                     trip['idx'] = row
                     trip['tripId'] = 'C-' + str(trip['idx'])
-
-                    if trip['LegList']['Leg'][-1]['type'] == 'WALK':
-                        del trip['LegList']['Leg'][-1]
-
-                    if trip['LegList']['Leg'][0]['type'] == 'WALK':
-                        del trip['LegList']['Leg'][0]
+                    trip['LegList'] = {'Leg':[]}
+                    
+                    for i in range(len(LegList)):
+                        if LegList[i]['type'] != 'WALK' and LegList[i]['type'] != 'TRSF': 
+                            trip['LegList']['Leg'].append(LegList[i])  
             
                     if len(trip['LegList']['Leg']) != 1:
                         trip['price'] = {"url":urllib.urlencode({
@@ -134,6 +134,7 @@ def get(env, start_response):
                             }
                 
                     for i in range(len(trip['LegList']['Leg'])):
+                        
                         tripinfo = trip['LegList']['Leg'][i]
                         stops = []
                         if 'Stops' in tripinfo:
