@@ -258,7 +258,11 @@
             
             var a = new Date(startDeparture);
             var b = new Date(endarrival);
-            var d = new Date(b.getTime() - a.getTime());
+            var d = b - a;
+            hh = parseInt(d/3600000);
+            mm = (d - (hh*3600000))/60000;
+            traveltime = hh + ":" + mm;
+
             
             for(i = 0; i <= byten; i++){
                lowest = 13371337.0;
@@ -340,7 +344,7 @@
             lastSegment.Destination.name,
             endarrival,
             byten,
-            d.getHours()+":"+d.getMinutes(),
+            traveltime,
             pris
         ] ).draw();
         };
