@@ -14,7 +14,6 @@ import mas
 import svenskabuss
 import snalltaget
 import sj
-import swebus
 import nettbuss
 import bt
 import sktr
@@ -50,8 +49,6 @@ application = tornado.web.Application([
     (r"/mas/cache/", mas.CachePrint),
     (r"/xtr/", xtr.Handler),
     (r"/xtr/cache/", xtr.CachePrint),
-    (r"/swebus/", swebus.Handler),
-    (r"/swebus/cache/", swebus.CachePrint),  
     (r"/snalltaget/", snalltaget.Handler),
     (r"/snalltaget/cache/", snalltaget.CachePrint),
     (r"/nettbuss/", nettbuss.Handler),

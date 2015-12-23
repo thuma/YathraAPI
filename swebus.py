@@ -1,154 +1,148 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-import tornado.httpclient
+import hashlib
+import requests
+import os
+import json
 import time
+import urlparse
 from bs4 import BeautifulSoup
 
 
-http_client = tornado.httpclient.HTTPClient()
-try:
-    response = http_client.fetch('https://raw.githubusercontent.com/thuma/Transit-Stop-Identifier-Conversions-Sweden/master/swebus-gtfs.csv')
-    list_data = response.body
-except httpclient.HTTPError as e:
-    print "Error:", e
-http_client.close()
-cache = {}
-stops = {}
+list_data = ''
+
+#with open ('../Transit-Stop-Identifier-Conversions-Sweden/swebus-gtfs.csv', 'r') as myfile:
+#    list_data = myfile.readlines()
+
+response = requests.get('https://raw.githubusercontent.com/thuma/Transit-Stop-Identifier-Conversions-Sweden/c0adf021a71a7fb9f640d7907204613318915b61/swebus-gtfs.csv')
+list_data = response.content
 list_data = list_data.split('\n')
+
+stops = {}
 
 for row in list_data:
     try:
         parts = row.split(',')
         stops[parts[0]] = {}
-        stops[parts[0]]['id'] = parts[2]
+        stops[parts[0]]['type'] = parts[2]
+        stops[parts[0]]['id'] = parts[1]
         stops[parts[0]]['name'] = parts[3]
     except:
         parts = ''
+     
 
-class CachePrint(tornado.web.RequestHandler):
-    def get(self):
-        global cache
-        self.write(cache)
+type={'0':'BusStop','1':'City'}
 
-class Handler(tornado.web.RequestHandler):
-    @tornado.web.asynchronous
-    def get(self):
-        global cache
-        global stops
+def getDayPrice(fromid, toid, fromdate):
+    global stops
+    global type
         
-        try:
-            pricea = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
-            price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
-            outdata = {"travelerAge":35,    
-                "travelerIsStudent":False,
-                "sellername":"Swebus",
-                "price":"",
-                "currency":"SEK",
-                "validPrice":True
-                }
-        
-            outdata['departureTime'] = self.get_argument('departureTime')
-            outdata['arrivalTime'] = self.get_argument('arrivalTime')
-            outdata['date'] = self.get_argument('date')
-            outdata['from'] = self.get_argument('from')
-            outdata['to'] = self.get_argument('to')
-            outdata['price'] = price['Price1']
-            outdata['validPrice'] = 1
-            outdata['url'] = pricea['url']
-    
-            self.write(outdata)
-            self.finish()
-            return
-        except:
-            try:
-                test = cache[self.get_argument('date')+self.get_argument('from')+self.get_argument('to')]
-                self.write('{"error":"No trip found"}')
-                self.finish()
-                return
-            except:             
-                notfoundincache = 1    
-        
-        
-        self.http_client = tornado.httpclient.AsyncHTTPClient()
-        try:
-            self.url = 'http://www.swebus.se/Express/Sokresultat/\
-?from='+stops[self.get_argument('from')]['id']+'\
-&fromtype=BusStop\
-&to='+stops[self.get_argument('to')]['id']+'\
-&totype=BusStop\
-&away='+self.get_argument('date')+'\
+    url = 'http://www.swebus.se/Express/Sokresultat/\
+?from='+stops[fromid]['id']+'\
+&fromtype='+type[stops[fromid]['type']]+'\
+&to='+stops[toid]['id']+'\
+&totype='+type[stops[toid]['type']]+'\
+&away='+fromdate+'\
 &Adult=1\
 &Child=0\
 &Youth=0\
 &Student=0\
 &Pensioner=0\
 &Pet=0\
-&campaignCode=\
-&id=1101\
-&epslanguage=sv-SE'
-            print self.url
-            self.myhttprequest = tornado.httpclient.HTTPRequest(self.url) 
-            self.http_client.fetch(self.myhttprequest, self.searchdone)
-        except:
-            self.write({'error':'from/to station not in network'})
-            self.finish()
-            return
-        
-    def searchdone(self, response):
-        global cache
-        html_data = response.body
-        try:
-            html_data = BeautifulSoup(html_data)
-        except:
-            #self.http_client.fetch(self.myhttprequest, self.searchdone)
-            #return
-            end = 1
-        lista = html_data.find(id='bookingSearchResultsAway').findAll("div", { "class" : "Accordion" })
-        lista = lista[0].findAll("table") 
-        
-        mainkey = self.get_argument('date')+self.get_argument('from')+self.get_argument('to')
-        cache[mainkey] = {}
-        cache[mainkey]['url'] = self.url
-        for i in lista:
-                    try:
-                        data = {}
-                        data['Departure'] = i.findAll("th", { "class" : "Departure" })[0].string.strip()
-                        data['Arrival'] = i.findAll("th", { "class" : "Arrival" })[0].string.strip()
-                        data['Price1'] = i.findAll("th", { "class" : "Price1" })[0].findAll("input")[0]['value']
-                        data['Price2'] = i.findAll("th", { "class" : "Price2" })[0].findAll("input")[0]['value']
-                        data['Price3'] = i.findAll("th", { "class" : "Price3" })[0].findAll("input")[0]['value']
+&campaignCode='
 
-                        cache[mainkey][data['Departure']+data['Arrival']] = data
-                    except:
-                        soldoutrow = 1
-                
-        try:
-            pricea = cache[mainkey]
-            price = pricea[self.get_argument('departureTime')+self.get_argument('arrivalTime')]
-            outdata = {"travelerAge":35,    
-                "travelerIsStudent":False,
-                "sellername":"Swebus",
-                "price":"",
-                "currency":"SEK",
-                "validPrice":True
-                }
-        
-            outdata['departureTime'] = self.get_argument('departureTime')
-            outdata['arrivalTime'] = self.get_argument('arrivalTime')
-            outdata['date'] = self.get_argument('date')
-            outdata['from'] = self.get_argument('from')
-            outdata['to'] = self.get_argument('to')
-            outdata['price'] = int(price['Price1'].split(" ")[0])
-            outdata['validPrice'] = 1
-            outdata['url'] = pricea['url']
+    print url
+    hash = hashlib.sha224(url).hexdigest()
     
-            self.write(outdata)
-            self.finish()
-            return
-        except:
-            notfoundincache = 1    
-                        
-            self.write('{"Error":"No trip found"}')
-            self.finish()
+    cachepath = 'cache/swebus/%s' % hash
+    all = {}
+    
+    try:
+        statinfo = os.stat(cachepath)
+    except:
+        statinfo = False
+    if statinfo:
+        if (time.time() - statinfo.st_mtime) < 3600:
+            with open(cachepath, 'r') as cachefile:
+                return json.load(cachefile)
+    
+    pricehtml = requests.get(url).content
+    html_data = BeautifulSoup(pricehtml, 'html.parser')
+    lista = html_data.find(id='bookingSearchResultsAway').findAll('div', { 'class' : 'Accordion' })
+    lista = lista[0].findAll('table') 
+    
+    for i in lista:
+        data = {}
+        data['Departure'] = i.findAll('th', { 'class' : 'Departure' })[0].string.strip()
+        data['Arrival'] = i.findAll('th', { 'class' : 'Arrival' })[0].string.strip()
+        data['url'] = url
         
+        try:
+            data['Price1'] = i.findAll('th', { 'class' : 'Price1' })[0].findAll('input')[0]['value'].split(' ')[0]
+        except:
+            data['Price1'] = ''
+        
+        try:
+            data['Price2'] = i.findAll('th', { 'class' : 'Price2' })[0].findAll('input')[0]['value'].split(' ')[0]
+        except:
+            data['Price2'] = ''
+        
+        try:
+            data['Price3'] = i.findAll('th', { 'class' : 'Price3' })[0].findAll('input')[0]['value'].split(' ')[0]
+        except:
+            data['Price3'] = ''
+        
+        all[data['Departure']] = data
+    
+    with open(cachepath, 'w') as cachefile:
+        json.dump(all, cachefile)    
+    return all
+
+def getprice(fromid, toid, fromdate, fromtime, todate, totime):
+    
+    try:
+        all = getDayPrice(fromid, toid, fromdate)
+    except:
+        all = {"no":"data"}
+    
+    all = getDayPrice(fromid, toid, fromdate)
+    
+    if fromtime in all:
+        if all[fromtime]['Arrival'] == totime:
+            outdata = {'travelerAge':35,    
+                'travelerIsStudent':False,
+                'sellername':'Swebus',
+                'price':all[fromtime]['Price1'],
+                'currency':'SEK',
+                'validPrice':True,
+                'departureDate': fromdate,
+                'departureTime': fromtime,
+                'arrivalDate':todate,
+                'arrivalTime':totime,
+                'from':fromid,
+                'to':toid,
+                'url':all[fromtime]['url']
+                }
+            return json.dumps(outdata)
+    return '{"error":"no trip found"}'
+
+def findprice(env, start_response):
+    global stops
+    start_response('200 OK', [('Content-Type', 'application/json')])
+    getdata = urlparse.parse_qs(env['QUERY_STRING'])
+    
+    if getdata['from'][0] not in stops:
+        return['{"error":"Missing from station"}']
+    if getdata['to'][0] not in stops:
+        return['{"error":"Missing from station"}']
+    
+    return [
+        getprice(getdata['from'][0],
+        getdata['to'][0],
+        getdata['departureDate'][0],
+        getdata['departureTime'][0],
+        getdata['arrivalDate'][0],
+        getdata['arrivalTime'][0])
+        ]
+
+#print getprice('7400001', '7400002', '2015-12-10', '12:36', '2015-12-10','15:55')

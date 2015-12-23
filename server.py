@@ -11,12 +11,15 @@ import urlparse
 import mtrexpress
 import sl
 import resrobot_oneday
+import swebus
 
 def application(env, start_response):
     if env['PATH_INFO'] == '/sl/':
         return sl.findprice(env, start_response)
     if env['PATH_INFO'] == '/mtr/':
         return mtrexpress.findprice(env, start_response)
+    if env['PATH_INFO'] == '/swebus/':
+        return swebus.findprice(env, start_response)
     if env['PATH_INFO'] == '/trip/':
         return resrobot_oneday.get(env, start_response)
     else:
