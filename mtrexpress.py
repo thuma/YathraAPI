@@ -66,7 +66,7 @@ def output(getdata,data):
 		       "price":price,
 		       "currency":"SEK",
 		       "validPrice":True,
-		       "url":"http://www.mtrexpress.se/sv/boka-resa/tr/"+str(int(getdata['from'][0][-4:]))+"_"+str(int(getdata['to'][0][-4:]))
+		       "url":"https://www.mtrexpress.se/sv/boka-resa/er/"+str(int(getdata['from'][0][-4:]))+"_"+str(int(getdata['to'][0][-4:]))+"/v1/"+getdata['date'][0]
                }
 		       
        	   return json.dumps(out)
