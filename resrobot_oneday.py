@@ -11,6 +11,8 @@ import json
 import time
 import urlparse
 
+with open('../resrobot.key', 'r') as keyfile:
+    key = keyfile.read().strip()
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -99,7 +101,7 @@ def get(env, start_response):
         trips = {'Trip':[]}
 
         query = {
-        'key': '886e3586-3fe5-4376-90ff-8817161a48cb',
+        'key': key,
         'originId': fromid,
         'destId': toid,
         'date': date,

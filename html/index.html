@@ -133,9 +133,9 @@
         <div class="large-12 columns">
 <table id="table_id" class="display">
     <thead>
-        <tr>
-            <th>Från</th>
+        <tr> 
             <th>Avg.</th>
+            <th>Från</th>
             <th>Till</th>
             <th>Ank.</th>
             <th>Byte</th>
@@ -340,10 +340,9 @@
                 }
             stations = stations + "</div>"
 
-    $('#table_id').DataTable().row.add( [
+    $('#table_id').DataTable().row.add( [startDeparture,
             '<a href="javascript:void(0)" onclick="$(\'#'+trip.tripId+firstSegment.Origin.date+'\').foundation(\'reveal\', \'open\');">'+firstSegment.Origin.name +'</a>\
             <div id="'+trip.tripId+firstSegment.Origin.date+'" class="reveal-modal" data-reveal> '+stations+' <a class="close-reveal-modal">&#215;</a></div>',
-            startDeparture,
             lastSegment.Destination.name,
             endarrival,
             byten,
