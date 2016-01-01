@@ -80,17 +80,20 @@
             <div class="panel">
                     <form method="post" action="">
                         <div class="row">
-                            <div class="large-6 columns">
+                            <div class="large-4 columns">
                                 <input class="from" type="text" name="fromPlace" id="from" value="" placeholder="Från" x-webkit-speech /> 
                             </div>
-                            <div class="large-6 columns">
+                            <div class="large-4 columns">
                                 <input class="destination" type="text" name="destination" id="destination" value="" placeholder="Till" x-webkit-speech />
+                            </div>
+                            <div class="large-4 columns">
+                                <input type="text" id="datepicker" placeholder="Avg.Datum" />
                             </div>
                         </div>
                         <div class="row">
-                            <div class="large-3 columns">
+                            <!--<div class="large-3 columns">
                                     <input type="text" id="datepicker" placeholder="Avg.Datum" />
-                            </div><!--
+                            </div>
                             <div class="large-3 columns">
                                     <input type="time" id="timepicker" name="" value="" placeholder="Avg.Tid" />
                             </div>
@@ -102,13 +105,13 @@
                             </div>-->
                         </div>
                         <div class="row">
-                            <div class="large-4 columns text-center">
+                            <!--<div class="large-4 columns text-center">
                                 <div class="button small round" type="button" id="delalink" onclick="alert('Här är en url till dina resor: '+window.location)" >Dela tider och priser</div>
                             </div>
                             <div class="large-4 columns text-center">
                                 <div class="button small round" type="button" id="clearbutton" onclick="$('#table_id').DataTable().clear();$('#table_id').DataTable().draw();" >Radera alla resor i tabellen</div>
-                            </div>
-                            <div class="large-4 columns text-center">
+                            </div>-->
+                            <div class="large-12 columns text-center">
                                 <div class="button small round" type="button" id="searchbutton">Hämta tider och priser</div>
                             </div>
 
