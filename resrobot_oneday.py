@@ -73,12 +73,16 @@ def get(env, start_response):
     combined = fromid+toid+date
     
     while combined in running:
+	print "lets sleep"
         time.sleep(1)
     
     try: 
-        with open('cache/trips/'+fromid+toid+date+str(tripno), 'r') as data_file:   
+        with open('cache/trips/'+fromid+toid+date+str(tripno), 'r') as data_file:
+            print "founddata"
             start_response('200 OK', [('Content-Type', 'application/json')])
-            return data_file.read()
+            returndata = data_file.read()
+            print "fileread"
+            return [returndata]
     except:
         print "Detailed cached failed"
         
