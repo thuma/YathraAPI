@@ -180,52 +180,6 @@
     </div>
 <!-- Infotext - END -->
 
-
-<div class="row hide">    
-    <div class="large-12 columns">
-        <div class="panel">
-            <div class="row">
-             <div class="large-2 columns startStation">
-                Varberg Station
-            </div>
-            <div class="large-2 columns tripDeparture">
-              Mån V31, 21 Jun 12:00
-            </div>
-            <div class="large-4 columns price">
-            86.5 SEK Skånetrafiken<br />
-            109 SEK SJ
-            </div>    
-            <div class="large-2 columns arrival">
-             Mån V31, 21 Jun 20:30 
-            </div>
-            <div class="large-2 columns endStation">
-            Malmö Centralstation
-            </div>
-            </div>
-            <div class="row">
-            <div class="large-2 columns startStation">
-                Varberg Station
-            </div>
-            <div class="large-2 columns tripDeparture">
-              Mån V31, 21 Jun 12:00
-            </div>
-            <div class="large-2 columns product">
-            Öresundståg
-            </div>
-            <div class="large-2 columns price">
-            86.5 SEK Skånetrafiken<br />
-            109 SEK SJ
-            </div>    
-            <div class="large-2 columns arrival">
-             Mån V31, 21 Jun 20:30 
-            </div>
-            <div class="large-2 columns endStation">
-            Malmö Centralstation
-            </div>
-        </div>
-    </div>
-</div>              
-
 <script src="id-name-muni.js"></script>
 <script src="lanid-kommunid.js"></script>
 
@@ -253,6 +207,7 @@
             var byten = trip.LegList.Leg.length;
             byten = byten - 1;
             var pris = '';
+            var minpris = '';
         
             firstSegment = trip.LegList.Leg[0];
             startDeparture = trip.LegList.Leg[0].Origin.date + " " + trip.LegList.Leg[0].Origin.time;
@@ -278,8 +233,9 @@
                          if (lowest > pricefloat){
                             lowest = pricefloat;
                             lowestseller = key;
+                            minpris =  prisdel.price + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">' +  prisdel.currency + '</a>';
                          }
-                         allpris = allpris + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '"> '+  prisdel.price+' ' + prisdel.currency + '</a><br />';
+                         allpris = allpris + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">'+  prisdel.price+' ' + prisdel.currency + '</a><br />';
                     }
                 }
                 console.log(lowestseller);
@@ -289,7 +245,7 @@
             }
             
             if(byten == 0){
-                pris = trip.LegList.Leg[0].price.allpris;
+                pris = minpris;
             }
             else{
                lowest = 13371337.0;
@@ -303,23 +259,25 @@
                          if (lowest > pricefloat){
                             lowest = pricefloat;
                             lowestseller = key;
-                            minpris = ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '"> '+  prisdel.price+' ' + prisdel.currency + '</a>';
+                            minpris = prisdel.price+' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">' + prisdel.currency + '</a>';
                          }
-                         allpris = allpris + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '"> '+  prisdel.price+' ' + prisdel.currency + '</a><br />';
+                         allpris = allpris + '<a href="'+prisdel.url+'" title="' + prisdel.sellername + '"> '+  prisdel.price+' ' + prisdel.currency + '</a><br />';
                     }
                 }
                 mix = 0;
                 for(i = 0; i <= byten; i++){
                     if(trip.LegList.Leg[i].price.lowest in trip.LegList.Leg[i].price.list){
+                        if(trip.LegList.Leg[i].price.lowest != 'none'){
                         lagsta = trip.LegList.Leg[i].price.list[trip.LegList.Leg[i].price.lowest];
                         mix = mix + parseFloat(lagsta.price);
+                        }
                     }
                     else{
-                            mix = -1000000000000;
+                        mix = -100000000000;
                     }
                 }
                 if (mix > 0 ){
-                    allpris = allpris +' <a href="#" title="Kombinerad-Bilett"> '+  mix +' SEK</a><br />';
+                    allpris = allpris +'<a href="#" title="Kombinerad-Bilett"> '+  mix +' SEK</a><br />';
                 }
                 trip.price.lowest = lowestseller;
                 trip.price.allpris = allpris;
@@ -327,10 +285,6 @@
                 if(mix < lowest && mix > 0 ){
                     pris = mix + " SEK";
                 }
-                else{
-                    pris = minpris;
-                }
-                
             }
             
             stations = "<div>"

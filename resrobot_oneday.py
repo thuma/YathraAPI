@@ -59,6 +59,7 @@ def pricerequest(pricequery):
         pricerequests[seller] = Greenlet.spawn(getprice, sellers[seller] ,pricequery)
     
     for seller in pricerequests:
+        print("Now getting: "+ seller)
         pricerequests[seller].join()
         if pricerequests[seller].successful():
             prices[seller] = pricerequests[seller].value
