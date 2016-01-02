@@ -55,7 +55,7 @@ class Handler(tornado.web.RequestHandler):
                     "price":"",
                     "currency":"SEK",
                     "validPrice":True,
-                    "url":"http://www.tagkompaniet.se/"
+                    "url":"http://www.tagkompaniet.se/#sd="+self.get_argument('date')+";ed="+self.get_argument('date')+";tab=0;from=740"+self.get_argument('from')[2:]+";to=740"+self.get_argument('to')[2:]
                     }
         
                 outdata['departureTime'] = self.get_argument('departureTime')
@@ -108,7 +108,7 @@ class Handler(tornado.web.RequestHandler):
                     "price":"",
                     "currency":"SEK",
                     "validPrice":True,
-                    "url":"http://www.tagkompaniet.se/"
+                    "url":"http://www.tagkompaniet.se/#sd="+self.get_argument('date')+";ed="+self.get_argument('date')+";tab=0;from=740"+self.get_argument('from')[2:]+";to=740"+self.get_argument('to')[2:]
                     }
         
                 outdata['departureTime'] = self.get_argument('departureTime')

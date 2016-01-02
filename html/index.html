@@ -262,9 +262,9 @@
             var a = new Date(startDeparture);
             var b = new Date(endarrival);
             var d = b - a;
-            hh = parseInt(d/3600000);
-            mm = (d - (hh*3600000))/60000;
-            traveltime = hh + ":" + mm;
+            hh = '0'+parseInt(d/3600000);
+            mm = '0'+(d - (hh*3600000))/60000;
+            traveltime = hh.slice(-2) + ":" + mm.slice(-2);
 
             
             for(i = 0; i <= byten; i++){
@@ -295,6 +295,7 @@
                lowest = 13371337.0;
                lowestseller = 'none';
                allpris = '';
+               pris = '';
                for (key in trip.price.list){
                     prisdel = trip.price.list[key];
                     if('price' in prisdel){
@@ -302,6 +303,7 @@
                          if (lowest > pricefloat){
                             lowest = pricefloat;
                             lowestseller = key;
+                            minpris = ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '"> '+  prisdel.price+' ' + prisdel.currency + '</a>';
                          }
                          allpris = allpris + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '"> '+  prisdel.price+' ' + prisdel.currency + '</a><br />';
                     }
@@ -313,9 +315,7 @@
                         mix = mix + parseFloat(lagsta.price);
                     }
                     else{
-                        if(trip.LegList.Leg[i].type != 'WALK'){
                             mix = -1000000000000;
-                        }
                     }
                 }
                 if (mix > 0 ){
@@ -323,7 +323,14 @@
                 }
                 trip.price.lowest = lowestseller;
                 trip.price.allpris = allpris;
-                pris = allpris;
+                
+                if(mix < lowest && mix > 0 ){
+                    pris = mix + " SEK";
+                }
+                else{
+                    pris = minpris;
+                }
+                
             }
             
             stations = "<div>"
