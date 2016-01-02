@@ -12,10 +12,13 @@ import mtrexpress
 import sl
 import resrobot_oneday
 import swebus
+import sjbeta
 
 def application(env, start_response):
     if env['PATH_INFO'] == '/sl/':
         return sl.findprice(env, start_response)
+    if env['PATH_INFO'] == '/sj/':
+        return sjbeta.findprice(env, start_response)
     if env['PATH_INFO'] == '/mtr/':
         return mtrexpress.findprice(env, start_response)
     if env['PATH_INFO'] == '/swebus/':

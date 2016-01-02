@@ -1,9 +1,6 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-
 from __future__ import print_function
 from gevent import monkey;
 monkey.patch_all()
@@ -12,43 +9,50 @@ import json
 import urlparse
 
 stations = {}
-stationsget = requests.get('https://api.trafiklab.se/samtrafiken/gtfs/extra/agency_stops_275.txt?key=b4141ff657cfdd05df923ac21c057286')
-stationscsv = stationsget.text.split("\n")
 
-for row in stationscsv:
-    try:
-        parts = row.strip().split(",")
-        stations[parts[1]] = {"StopPointNumber":parts[2]}
-    except:
-        pass
+try:
+    with open('cache/sl/stations.json', 'r') as cachefile:
+        stations = json.load(cachefile)
+except:
 
-stationsget = requests.get('http://api.sl.se/api2/LineData.json?model=StopPoint&key=0a28edfd9e8e49bf87c5ba27131ddb6a')
+    stationsget = requests.get('https://api.trafiklab.se/samtrafiken/gtfs/extra/agency_stops_275.txt?key=b4141ff657cfdd05df923ac21c057286')
+    stationscsv = stationsget.text.split("\n")
 
-stoppoints = stationsget.json()["ResponseData"]["Result"]
-points = {}
-stationsget = ""
+    for row in stationscsv:
+        try:
+            parts = row.strip().split(",")
+            stations[parts[1]] = {"StopPointNumber":parts[2]}
+        except:
+            pass
 
-for point in stoppoints: 
-    points[point["StopPointNumber"]] = point
+    stationsget = requests.get('http://api.sl.se/api2/LineData.json?model=StopPoint&key=0a28edfd9e8e49bf87c5ba27131ddb6a')
 
-stoppoints = {}
+    stoppoints = stationsget.json()["ResponseData"]["Result"]
+    points = {}
+    stationsget = ""
 
-for station in stations:
-    try:
-        stations[station]["Zone"] = points[stations[station]["StopPointNumber"]]["ZoneShortName"]
+    for point in stoppoints: 
+        points[point["StopPointNumber"]] = point
+
+    stoppoints = {}
+
+    for station in stations:
+        try:
+            stations[station]["Zone"] = points[stations[station]["StopPointNumber"]]["ZoneShortName"]
         
-        if float(points[stations[station]["StopPointNumber"]]["LocationNorthingCoordinate"]) > 59.2981056:
-            stations[station]["N"] = "yes"
-        else:
-            stations[station]["N"] = "no"
-    except:
-        pass
-        # Print missing data:
-        #print(stations[station])
+            if float(points[stations[station]["StopPointNumber"]]["LocationNorthingCoordinate"]) > 59.2981056:
+                stations[station]["N"] = "yes"
+            else:
+                stations[station]["N"] = "no"
+        except:
+            pass
+            # Print missing data:
+            #print(stations[station])
 
-points = {}
+    points = {}
 
-print(stations)
+    with open('cache/sl/stations.json', 'w') as cachefile:
+        json.dump(stations, cachefile)
 
 def findprice(env, start_response):
     global stations
