@@ -233,7 +233,7 @@
                          if (lowest > pricefloat){
                             lowest = pricefloat;
                             lowestseller = key;
-                            minpris =  prisdel.price + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">' +  prisdel.currency + '</a>';
+                            minpris =  prisdel.price+ ' ' + prisdel.currency + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">Köp</a>';
                          }
                          allpris = allpris + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">'+  prisdel.price+' ' + prisdel.currency + '</a><br />';
                     }
@@ -259,7 +259,7 @@
                          if (lowest > pricefloat){
                             lowest = pricefloat;
                             lowestseller = key;
-                            minpris = prisdel.price+' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">' + prisdel.currency + '</a>';
+                            minpris = prisdel.price+ ' ' + prisdel.currency + ' <a href="'+prisdel.url+'" title="' + prisdel.sellername + '">Köp</a>';
                          }
                          allpris = allpris + '<a href="'+prisdel.url+'" title="' + prisdel.sellername + '"> '+  prisdel.price+' ' + prisdel.currency + '</a><br />';
                     }
@@ -283,7 +283,8 @@
                 trip.price.allpris = allpris;
                 
                 if(mix < lowest && mix > 0 ){
-                    pris = mix + " SEK";
+                    var mixlink = '<a href="javascript:void(0)" onclick="$(\'#'+trip.tripId+firstSegment.Origin.date+'\').foundation(\'reveal\', \'open\');">Köp</a></div>';
+                    pris = mix + " SEK " + mixlink;
                 }
             }
             
@@ -300,10 +301,12 @@
                     }
                 }
             stations = stations + "</div>"
-
+            
+            var tostation = '<a href="javascript:void(0)" onclick="$(\'#'+trip.tripId+firstSegment.Origin.date+'\').foundation(\'reveal\', \'open\');">'+firstSegment.Origin.name +'</a>\
+            <div id="'+trip.tripId+firstSegment.Origin.date+'" class="reveal-modal" data-reveal> '+stations+' <a class="close-reveal-modal">&#215;</a></div>';
+            
     $('#table_id').DataTable().row.add( [startDeparture,
-            '<a href="javascript:void(0)" onclick="$(\'#'+trip.tripId+firstSegment.Origin.date+'\').foundation(\'reveal\', \'open\');">'+firstSegment.Origin.name +'</a>\
-            <div id="'+trip.tripId+firstSegment.Origin.date+'" class="reveal-modal" data-reveal> '+stations+' <a class="close-reveal-modal">&#215;</a></div>',
+            tostation,
             lastSegment.Destination.name,
             endarrival,
             byten,
