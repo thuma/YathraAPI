@@ -50,7 +50,7 @@ def findprice(env, start_response):
                "price":price,
                "currency":"SEK",
                "validPrice":True,
-               "url":"https://beta.sj.se/#/tidtabell/"+quote(fromid['name'])+"/"+quote(toid['name'])+"/enkel/avgang/"+getdata['date'][0].replace("-","")+"-"+getdata['departureTime'][0].replace(":","")+"/avgang/"+getdata['date'][0].replace("-","")+"-"+getdata['departureTime'][0].replace(":","")+"/VU///0/"
+               "url":"https://beta.sj.se/#/tidtabell/"+quote(quote(fromid['name']))+"/"+quote(quote(toid['name']))+"/enkel/avgang/"+getdata['date'][0].replace("-","")+"-"+getdata['departureTime'][0].replace(":","")+"/avgang/"+getdata['date'][0].replace("-","")+"-"+getdata['departureTime'][0].replace(":","")+"/VU///0//"
                }
             return [json.dumps(out)]
     return ['{"error":"no trip found"}']
@@ -71,7 +71,7 @@ def getDate(fromid, toid, date, deptime = None, arrtime = None):
     'X-api.sj.se-language':'sv'}
 
     # Make validation:
-    r = requests.get('https://beta.sj.se/v5/rest/security/currenttoken', cookies=cookies)
+    r = requests.get('https://beta.sj.se/v6/rest/security/currenttoken', cookies=cookies)
 
     # Populate request:
     jsonreq = { 
@@ -93,7 +93,7 @@ def getDate(fromid, toid, date, deptime = None, arrtime = None):
                 }
 
     # Request Timetable:
-    r = requests.post('https://beta.sj.se/v5/rest/travels/searchdata',
+    r = requests.post('https://beta.sj.se/v6/rest/travels/searchdata',
                         cookies=cookies,
                         json=jsonreq)
 
@@ -111,7 +111,7 @@ def getDate(fromid, toid, date, deptime = None, arrtime = None):
         'onlysj':'false'}
 
     # Get timetable:
-    url = 'https://beta.sj.se/v5/rest/travels/timetables/'+tt
+    url = 'https://beta.sj.se/v6/rest/travels/timetables/'+tt
     r = requests.get(url, params=getparms, cookies=cookies)
 
     trips = r.json()
@@ -121,7 +121,7 @@ def getDate(fromid, toid, date, deptime = None, arrtime = None):
         for i, trip in enumerate(trips['journeys']):
             if trip["arrivalTime"]['time'] == arrtime and trip["departureTime"]['time'] == deptime:
                 print("Getting price no: "+ str(i))
-                url = 'https://beta.sj.se/v5/rest/travels/prices/'+pt+'/'+trip['journeyToken']
+                url = 'https://beta.sj.se/v6/rest/travels/prices/'+pt+'/'+trip['journeyToken']
                 r = requests.get(url, cookies=cookies)
                 trip['price'] = r.json()
                 return trip
